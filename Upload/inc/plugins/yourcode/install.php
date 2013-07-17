@@ -24,23 +24,26 @@ function yourcode_info()
 		$extra_links = "<br />";
 	}
 
-	$yourcode_description = "
-<table width=\"100%\">
+	$button_pic = $mybb->settings['bburl'] . '/inc/plugins/yourcode/images/donate.gif';
+	$border_pic = $mybb->settings['bburl'] . '/inc/plugins/yourcode/images/pixel.gif';
+	$yourcode_description = <<<EOF
+<table width="100%">
 	<tbody>
 		<tr>
 			<td>{$lang->yourcode_plugin_description}<br/>{$extra_links}
 			</td>
-			<td style=\"text-align: center;\">
-				<form action=\"https://www.paypal.com/cgi-bin/webscr\" method=\"post\" target=\"_top\">
-					<input type=\"hidden\" name=\"cmd\" value=\"_s-xclick\">
-					<input type=\"hidden\" name=\"hosted_button_id\" value=\"VA5RFLBUC4XM4\">
-					<input style=\"\" type=\"image\" src=\"https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif\" border=\"0\" name=\"submit\" alt=\"PayPal - The safer, easier way to pay online!\">
-					<img alt=\"\" border=\"0\" src=\"https://www.paypalobjects.com/en_US/i/scr/pixel.gif\" width=\"1\" height=\"1\">
+			<td style="text-align: center;">
+				<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+					<input type="hidden" name="cmd" value="_s-xclick">
+					<input type="hidden" name="hosted_button_id" value="VA5RFLBUC4XM4">
+					<input style="" type="image" src="{$button_pic}" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+					<img alt="" border="0" src="{$border_pic}" width="1" height="1">
 				</form>
 			</td>
 		</tr>
 	</tbody>
-</table>";
+</table>
+EOF;
 
 	$name = "<span style=\"font-familiy: arial; font-size: 1.5em; color: #BB0000; text-shadow: 2px 2px 2px #880000;\">{$lang->yourcode}</span>";
 	$author = "</a></small></i><a href=\"http://www.wildcardsworld.com\" title=\"Wildcard's World\"><span style=\"font-family: Courier New; font-weight: bold; font-size: 1.2em; color: #0e7109;\">Wildcard</span></a><i><small><a>";
@@ -54,7 +57,7 @@ function yourcode_info()
 		"authorsite"			=> "http://www.rantcentralforums.com",
 		"version"				=> "1.0",
 		"compatibility" 		=> "16*",
-		"guid" 					=> "870e9163e2ae9b606a789d9f7d4d2462",
+		"guid" 					=> "36a18ebc285a181a42561141adfd1d7f",
 	);
 }
 
@@ -126,6 +129,8 @@ function yourcode_activate()
  */
 function yourcode_deactivate()
 {
+	global $mybb;
+
 	// remove the permissions
 	change_admin_permission('config', 'yourcode', -1);
 }
@@ -227,13 +232,13 @@ function yourcode_port_old_mycode()
 
 	// get the internal MyCode definitions and the YourCode tools
 	require_once MYBB_ROOT . "inc/plugins/yourcode/definitions.php";
-	require_once MYBB_ROOT . "inc/plugins/yourcode/class_standard.php";
+	require_once MYBB_ROOT . "inc/plugins/yourcode/classes/standard.php";
 	require_once MYBB_ROOT . "inc/plugins/yourcode/functions.php";
 
 	foreach($all_mycode as $code)
 	{
 		// create and load a new object with the stored info and then save it to the db
-		$this_code = new YourCode\Simple($code);
+		$this_code = new YourCode($code);
 		$this_code->save();
 
 		// store the actives to save a query when building the cache
@@ -244,7 +249,7 @@ function yourcode_port_old_mycode()
 	}
 
 	// store the info in our cache entry just as MyBB stores internally cached MyCode
-	YourCode\build_cache($active_mycode);
+	_yc_build_cache($active_mycode);
 	return true;
 }
 

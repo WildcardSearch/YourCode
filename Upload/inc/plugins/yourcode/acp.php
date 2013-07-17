@@ -33,11 +33,11 @@ function yourcode_admin()
 	// no need for all the classes and functions if it is just AJAX test
 	if($mybb->input['mode'] != 'xmlhttp')
 	{
-		require_once MYBB_ROOT . "inc/plugins/yourcode/class_standard.php";
+		require_once MYBB_ROOT . "inc/plugins/yourcode/classes/standard.php";
 		require_once MYBB_ROOT . "inc/plugins/yourcode/functions.php";
 	}
 
-	// default page is view YourCode simple
+	// default page is view YourCode
 	if(!isset($mybb->input['action']) || $mybb->input['action'] == '')
 	{
 		$mybb->input['action'] = 'view';
@@ -49,6 +49,10 @@ function yourcode_admin()
 	{
 		// run it
 		$page_function();
+	}
+	else
+	{
+		yourcode_admin_view();
 	}
 	// get out
 	exit();
@@ -69,7 +73,7 @@ function yourcode_admin_view()
 		if(isset($mybb->input['id']) && (int) $mybb->input['id'])
 		{
 			// then attempt deletion
-			$this_code = new YourCode\Simple($mybb->input['id']);
+			$this_code = new YourCode($mybb->input['id']);
 			if($this_code->is_valid())
 			{
 				$success = $this_code->remove();
@@ -82,7 +86,7 @@ function yourcode_admin_view()
 		{
 			// yay for us
 			flash_message($lang->sprintf($lang->yourcode_message_success, $lang->yourcode, $action), 'success');
-			YourCode\build_cache();
+			_yc_build_cache();
 		}
 		else
 		{
@@ -95,7 +99,7 @@ function yourcode_admin_view()
 		// good info?
 		if(isset($mybb->input['id']) && (int) $mybb->input['id'])
 		{
-			$this_code = new YourCode\Simple($mybb->input['id']);
+			$this_code = new YourCode($mybb->input['id']);
 			if($this_code->is_valid())
 			{
 				$value = ($mybb->input['mode'] == 'activate');
@@ -109,7 +113,7 @@ function yourcode_admin_view()
 		{
 			// yay for us
 			flash_message($lang->sprintf($lang->yourcode_message_success, $lang->yourcode, $action), 'success');
-			YourCode\build_cache();
+			_yc_build_cache();
 		}
 		else
 		{
@@ -123,7 +127,7 @@ function yourcode_admin_view()
 		if(isset($mybb->input['id']) && (int) $mybb->input['id'])
 		{
 			// then attempt deletion
-			$this_code = new YourCode\Simple($mybb->input['id']);
+			$this_code = new YourCode($mybb->input['id']);
 			if($this_code->is_valid())
 			{
 				$success = $this_code->export();
@@ -177,12 +181,12 @@ function yourcode_admin_view()
 		if($num_results > $perpage)
 		{
 			// save the pagination for below and show it here as well
-			$pagination = draw_admin_pagination($mybb->input['page'], $perpage, $num_results, YourCode\build_url(array("action" => 'view')));
+			$pagination = draw_admin_pagination($mybb->input['page'], $perpage, $num_results, _yc_url(array("action" => 'view')));
 			echo($pagination . '<br />');
 		}
 
 		// get all the codes for this page
-		$all_codes = YourCode\get_all($start, $perpage);
+		$all_codes = _yc_get_all($start, $perpage);
 		$table = new Table;
 		$table->construct_header($lang->yourcode_title, array("style" => 'width: 25%;'));
 		$table->construct_header($lang->yourcode_description, array("style" => 'width: 40%;'));
@@ -201,19 +205,19 @@ EOF;
 			// if so display them
 			foreach($all_codes as $id => $code)
 			{
-				$edit_url = YourCode\build_url(array("action" => 'edit',  "id" => $id));
+				$edit_url = _yc_url(array("action" => 'edit',  "id" => $id));
 				$is_active = $code->get('active');
 				if($is_active)
 				{
 					$active_text = $lang->yourcode_deactivate;
-					$active_url = YourCode\build_url(array("action" => 'view', "mode" => 'deactivate', "page" => $mybb->input['page'], "id" => $id));
-					$active_link = YourCode\build_link($active_url, $active_text, array("title" => $lang->sprintf($lang->yourcode_message_active_status, strtolower($lang->yourcode_active), strtolower($active_text)), "style" => 'color: green'));
+					$active_url = _yc_url(array("action" => 'view', "mode" => 'deactivate', "page" => $mybb->input['page'], "id" => $id));
+					$active_link = _yc_link($active_url, $active_text, array("title" => $lang->sprintf($lang->yourcode_message_active_status, strtolower($lang->yourcode_active), strtolower($active_text)), "style" => 'color: green'));
 				}
 				else
 				{
 					$active_text = $lang->yourcode_activate;
-					$active_url = YourCode\build_url(array("action" => 'view', "mode" => 'activate', "page" => $mybb->input['page'], "id" => $id));
-					$active_link = YourCode\build_link($active_url, $active_text, array("title" => $lang->sprintf($lang->yourcode_message_active_status, strtolower($lang->yourcode_inactive), strtolower($active_text)), "style" => 'color: red'));
+					$active_url = _yc_url(array("action" => 'view', "mode" => 'activate', "page" => $mybb->input['page'], "id" => $id));
+					$active_link = _yc_link($active_url, $active_text, array("title" => $lang->sprintf($lang->yourcode_message_active_status, strtolower($lang->yourcode_inactive), strtolower($active_text)), "style" => 'color: red'));
 				}
 
 				if($code->get('nestable'))
@@ -225,7 +229,7 @@ EOF;
 					$nested_text = "<span style=\"color: #888;\"><em>{$lang->yourcode_no}</em></span>";
 				}
 
-				$table->construct_cell(YourCode\build_link($edit_url, $code->get('title')), array("style" => 'font-weight: bold;'));
+				$table->construct_cell(_yc_link($edit_url, $code->get('title')), array("style" => 'font-weight: bold;'));
 				$table->construct_cell($code->get('description'));
 				$table->construct_cell($code->get('parse_order'));
 				$table->construct_cell($nested_text);
@@ -234,8 +238,8 @@ EOF;
 				$popup = new PopupMenu("control_{$id}", $lang->yourcode_options);
 				$popup->add_item($lang->yourcode_edit, $edit_url);
 				$popup->add_item($active_text, $active_url);
-				$popup->add_item($lang->yourcode_export, YourCode\build_url(array("action" => 'view', "mode" => 'export', "page" => $mybb->input['page'], "id" => $id)));
-				$popup->add_item($lang->yourcode_delete, YourCode\build_url(array("action" => 'view', "mode" => 'delete', "page" => $mybb->input['page'], "id" => $id, "my_post_key" => $mybb->post_code)), $onclick);
+				$popup->add_item($lang->yourcode_export, _yc_url(array("action" => 'view', "mode" => 'export', "page" => $mybb->input['page'], "id" => $id)));
+				$popup->add_item($lang->yourcode_delete, _yc_url(array("action" => 'view', "mode" => 'delete', "page" => $mybb->input['page'], "id" => $id, "my_post_key" => $mybb->post_code)), $onclick);
 				$table->construct_cell($popup->fetch());
 				$table->construct_row();
 			}
@@ -279,7 +283,7 @@ function yourcode_admin_edit()
 		if(in_array($mybb->input['add_code_submit'], array('Save and Return to Listing', 'Save and Continue Editing')))
 		{
 			// create a new object from the passed info and save it
-			$this_code = new YourCode\Simple($mybb->input);
+			$this_code = new YourCode($mybb->input);
 			$success = $this_code->save();
 
 			// past tense is very important to me :P
@@ -295,7 +299,7 @@ function yourcode_admin_edit()
 			if($success)
 			{
 				// yay for us
-				YourCode\build_cache();
+				_yc_build_cache();
 				flash_message($lang->sprintf($lang->yourcode_message_success, $lang->yourcode, $action), 'success');
 
 				if($mybb->input['add_code_submit'] == 'Save and Return to Listing')
@@ -351,7 +355,7 @@ function yourcode_admin_edit()
 
 	// default to adding
 	$button_text = $lang->yourcode_add;
-	$this_code = new YourCode\Simple($mybb->input['id']);
+	$this_code = new YourCode($mybb->input['id']);
 
 	// no ID means a new YourCode
 	if($this_code->is_valid())
@@ -387,7 +391,7 @@ function yourcode_admin_edit()
 	$em = " <em>*</em>";
 
 	// hmm could this be the form?
-	$form = new Form(YourCode\build_url(array("action" => 'edit')), "post");
+	$form = new Form(_yc_url(array("action" => 'edit')), "post");
 	$form_container = new FormContainer("{$button_text} {$lang->yourcode}");
 	$form_container->output_row($lang->yourcode_title . $em, '', $form->generate_text_box('title', $data['title']));
 	$form_container->output_row($lang->yourcode_description, '', $form->generate_text_area('description', $data['description']));
@@ -484,14 +488,14 @@ function yourcode_admin_tools()
 
 			if(!$error)
 			{
-				if(YourCode\clear_all())
+				if(_yc_clear_all())
 				{
-					$success = YourCode\restore($contents);
+					$success = _yc_restore($contents);
 
 					if($success)
 					{
 						flash_message($lang->yourcode_restore_success, 'success');
-						admin_redirect(YourCode\build_url(array("action" => 'view')));
+						admin_redirect(_yc_url(array("action" => 'view')));
 					}
 					else
 					{
@@ -504,17 +508,17 @@ function yourcode_admin_tools()
 				}
 			}
 			flash_message($error, 'error');
-			admin_redirect(YourCode\build_url(array("action" => 'tools')));
+			admin_redirect(_yc_url(array("action" => 'tools')));
 		}
 	}
 
 	if($mybb->input['mode'] == 'clear')
 	{
-		if(YourCode\clear_all())
+		if(_yc_clear_all())
 		{
 			// yay for us
 			flash_message($lang->yourcode_clear_success, 'success');
-			YourCode\build_cache();
+			_yc_build_cache();
 		}
 		else
 		{
@@ -524,7 +528,7 @@ function yourcode_admin_tools()
 	}
 	elseif($mybb->input['mode'] == 'default')
 	{
-		if(YourCode\clear_all())
+		if(_yc_clear_all())
 		{
 			$success = yourcode_port_old_mycode();
 		}
@@ -532,9 +536,9 @@ function yourcode_admin_tools()
 		if($success)
 		{
 			// yay for us
-			YourCode\build_cache();
+			_yc_build_cache();
 			flash_message($lang->yourcode_default_success, 'success');
-			admin_redirect(YourCode\build_url(array("action" => 'view')));
+			admin_redirect(_yc_url(array("action" => 'view')));
 		}
 		else
 		{
@@ -544,7 +548,7 @@ function yourcode_admin_tools()
 	}
 	elseif($mybb->input['mode'] == 'backup')
 	{
-		YourCode\backup();
+		_yc_backup();
 		exit;
 	}
 
@@ -563,7 +567,7 @@ function yourcode_admin_tools()
 if($('file_s').value) { return true; } else { alert('{$lang->yourcode_import_no_file}'); return false; }
 EOF;
 
-	$form = new Form(YourCode\build_url(array("action" => 'import')), 'post', '', 1, '', '', $onsubmit);
+	$form = new Form(_yc_url(array("action" => 'import')), 'post', '', 1, '', '', $onsubmit);
 	$form_container = new FormContainer($lang->yourcode_import);
 	$form_container->output_row($lang->yourcode_import_select_file, $lang->yourcode_import_select_file_desc, $form->generate_file_upload_box('file_s', array("id" => 'file_s')) . $form->generate_hidden_field('my_post_key', $mybb->post_code));
 	$form_container->end();
@@ -582,11 +586,11 @@ return AdminCP.deleteConfirmation(this, '{$lang->yourcode_delete_warning_default
 EOF;
 
 	$table = new Table;
-	$table->construct_cell(YourCode\build_link(YourCode\build_url(array("action" => 'tools', "mode" => 'backup', "my_post_key" => $mybb->post_code)), $lang->yourcode_backup) . $lang->yourcode_backup_fin);
+	$table->construct_cell(_yc_link(_yc_url(array("action" => 'tools', "mode" => 'backup', "my_post_key" => $mybb->post_code)), $lang->yourcode_backup) . $lang->yourcode_backup_fin);
 	$table->construct_row();
-	$table->construct_cell(YourCode\build_link(YourCode\build_url(array("action" => 'tools', "mode" => 'clear', "my_post_key" => $mybb->post_code)), $lang->yourcode_clear, array("onclick" => $onclick_clear)) . $lang->yourcode_clear_fin);
+	$table->construct_cell(_yc_link(_yc_url(array("action" => 'tools', "mode" => 'clear', "my_post_key" => $mybb->post_code)), $lang->yourcode_clear, array("onclick" => $onclick_clear)) . $lang->yourcode_clear_fin);
 	$table->construct_row();
-	$table->construct_cell(YourCode\build_link(YourCode\build_url(array("action" => 'tools', "mode" => 'default', "my_post_key" => $mybb->post_code)), $lang->yourcode_default, array("onclick" => $onclick_default)) . $lang->yourcode_default_fin);
+	$table->construct_cell(_yc_link(_yc_url(array("action" => 'tools', "mode" => 'default', "my_post_key" => $mybb->post_code)), $lang->yourcode_default, array("onclick" => $onclick_default)) . $lang->yourcode_default_fin);
 	$table->construct_row();
 	$table->output($lang->yourcode_quick_links);
 
@@ -595,9 +599,9 @@ EOF;
 }
 
 /*
- * yourcode_admin_tools()
+ * yourcode_admin_import()
  *
- * ACP Page - Tools
+ * ACP Page - Import
  */
 function yourcode_admin_import()
 {
@@ -629,7 +633,7 @@ EOF;
 
 				if(!$error)
 				{
-					$codes = YourCode\import_check($contents);
+					$codes = _yc_import_check($contents);
 					$total = 0;
 					if(is_array($codes) && !empty($codes))
 					{
@@ -656,10 +660,10 @@ EOF;
 			if($error)
 			{
 				flash_message($error, 'error');
-				admin_redirect(YourCode\build_url(array("action" => 'tools')));
+				admin_redirect(_yc_url(array("action" => 'tools')));
 			}
 			flash_message($lang->sprintf($lang->yourcode_import_save_success, $total), 'success');
-			admin_redirect(YourCode\build_url(array("action" => 'view')));
+			admin_redirect(_yc_url(array("action" => 'view')));
 		}
 		else
 		{
@@ -690,7 +694,7 @@ EOF;
 
 			if(!$error)
 			{
-				$codes = YourCode\import_check($contents);
+				$codes = _yc_import_check($contents);
 				if(is_array($codes) && !empty($codes))
 				{
 					$total = count($codes);
@@ -700,7 +704,7 @@ EOF;
 					$onsubmit = <<<EOF
 var all_checks = $$('input.checkbox_input'); var go = false; for(x = 0; x < all_checks.length; x++) { if(all_checks[x].checked) { return true; } } alert('{$lang->yourcode_import_selection_error}'); return false;
 EOF;
-					$form = new Form(YourCode\build_url(array("action" => 'import', "mode" => 'finish')), 'post', '', '', '', '', $onsubmit);
+					$form = new Form(_yc_url(array("action" => 'import', "mode" => 'finish')), 'post', '', '', '', '', $onsubmit);
 					$form_container = new FormContainer($lang->yourcode_import);
 
 					$percentage = 45;
@@ -765,13 +769,13 @@ EOF;
 				else
 				{
 					flash_message($lang->yourcode_import_file_upload_error, 'error');
-					admin_redirect(YourCode\build_url(array("action" => 'import')));
+					admin_redirect(_yc_url(array("action" => 'import')));
 				}
 			}
 			else
 			{
 				flash_message($lang->yourcode_import_file_upload_error, 'error');
-				admin_redirect(YourCode\build_url(array("action" => 'import')));
+				admin_redirect(_yc_url(array("action" => 'import')));
 			}
 		}
 	}
