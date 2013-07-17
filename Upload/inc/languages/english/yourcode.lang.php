@@ -32,12 +32,16 @@ $l['yourcode_save'] = "Save";
 $l['yourcode_title'] = "Title";
 $l['yourcode_type'] = "Type";
 $l['yourcode_update'] = "Update";
+$l['yourcode_upgrade'] = "Upgrade";
+$l['yourcode_finish'] = "Finish";
+$l['yourcode_proceed'] = "Proceed";
 $l['yourcode_restore_select_file'] = $l['yourcode_import_select_file'] = "Select a local file:";
 
 // actions
 $l['yourcode_added'] = "added";
 $l['yourcode_exported'] = "exported";
 $l['yourcode_updated'] = "updated";
+$l['yourcode_created'] = "created";
 
 // acp
 $l['yourcode_admin_permissions_desc'] = "Can use YourCode?";
