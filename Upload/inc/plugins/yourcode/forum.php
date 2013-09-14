@@ -70,12 +70,13 @@ function yourcode_run($message)
 $plugins->add_hook("datahandler_post_update", "yourcode_datahandler_post_update");
 function yourcode_datahandler_post_update($this_post)
 {
-	global $cache, $posthandler, $message;
+	global $cache, $posthandler, $db, $message;
 	$yourcode = $cache->read('yourcode');
 
 	$all_codes = array_merge((array) $yourcode['active']['restricted_use']['standard'], (array) $yourcode['active']['restricted_use']['nestable']);
 
-	$message = $posthandler->post_update_data['message'] = yourcode_police_message($all_codes, $this_post->data['message']);
+	$message = yourcode_police_message($all_codes, $this_post->data['message']);
+	$posthandler->post_update_data['message'] = $db->escape_string($message);
 }
 
 /*
