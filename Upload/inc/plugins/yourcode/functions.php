@@ -45,7 +45,22 @@ function _yc_build_cache($codelist = '')
 	{
 		$codelist = _yc_get_all();
 	}
-	$restricted_use_code = $restricted_view_code = $mycode_cache = array();
+
+	$restricted_use_code = $restricted_view_code = array();
+	/*
+	 * if there is no YourCode at all then to prevent errors from occurring
+	 * we need to add at the correct blank arrays
+	 */
+	$mycode_cache = array
+	(
+		"standard" => array
+		(
+			"find" => array(),
+			"replacement" => array()
+		),
+		"nestable" => array(),
+		"callback" => array()
+	);
 
 	if(is_array($codelist) && !empty($codelist))
 	{
@@ -114,22 +129,6 @@ function _yc_build_cache($codelist = '')
 				}
 			}
 		}
-	}
-
-	if(empty($mycode_cache))
-	{
-		/*
-		 * if there is no YourCode at all then to prevent errors from occuring
-		 * we need to add at least one regex to both the standard and nestable arrays--
-		 * since we don't want to change anything in the message or
-		 * waste more resources with this than necessary
-		 * we'll use a lookahead expression with a contradiction of terms--
-		 * a regex that will never (can never) match and none of the message
-		 * must be scanned before negative match can be confirmed.
-		 */
-		$mycode_cache['standard']['find'][] = "#(?!x)x#";
-		$mycode_cache['standard']['replacement'][] = '';
-		$mycode_cache['nestable'][] = array("find" => "#(?!x)x#", "replacement" => '');
 	}
 
 	global $cache;

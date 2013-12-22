@@ -55,7 +55,7 @@ EOF;
 		"website"				=> "http://wildcardsworld.com",
 		"author"				=> $author,
 		"authorsite"			=> "http://www.rantcentralforums.com",
-		"version"				=> "1.0",
+		"version"				=> "1.0.1",
 		"compatibility" 		=> "16*",
 		"guid" 					=> "36a18ebc285a181a42561141adfd1d7f",
 	);
@@ -120,6 +120,12 @@ function yourcode_activate()
 
 	// change the permissions to on by default
 	change_admin_permission('config', 'yourcode');
+
+	// rebuild the cache just in case admin has upgraded to fix this error:
+	// https://github.com/WildcardSearch/YourCode/issues/4
+	require_once MYBB_ROOT . "inc/plugins/yourcode/classes/standard.php";
+	require_once MYBB_ROOT . "inc/plugins/yourcode/functions.php";
+	_yc_build_cache();
 }
 
 /*
