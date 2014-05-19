@@ -1,13 +1,17 @@
 <?php
-/*
- * Plugin Name: YourCode for MyBB 1.6.x
- * Copyright 2013 WildcardSearch
- * http://www.wildcardsworld.com
+/**
+ * portable object definition
+ *
+ * @category  MyBB Plugins
+ * @package   YourCode
+ * @author    Mark Vincent <admin@rantcentralforums.com>
+ * @copyright 2012-2014 Mark Vincent
+ * @license   http://opensource.org/licenses/gpl-license.php GNU Public License
+ * @link      https://github.com/WildcardSearch/YourCode
+ * @since     1.1
  */
 
-/*
- * interface PortableObjectInterface
- *
+/**
  * provides a standard interface for object import/export
  */
 interface PortableObjectInterface
@@ -17,24 +21,18 @@ interface PortableObjectInterface
 	public function build_row();
 }
 
-/*
- * abstract class PortableObject
- *
- * provides functionality to import and export any StorableObject as an XML file and to output a row to be included in a collection exported by an outside function
+/**
+ * provides functionality to import and export any StorableObject as an
+ * XML file and to output a row to be included in a collection exported by
+ * an outside function
  */
 abstract class PortableObject extends StorableObject implements PortableObjectInterface
 {
-	/*
-	 * public function export()
-	 *
+	/**
 	 * provides export functionality for any StorableObject
 	 *
-	 * @param - $options 	- (array) basic export options:
-	 *									-	['charset'] def: MyBB default/UTF-8
-	 *									-	['version'] def: 1.0
-	 *									-	['website'] def: mine :p
-	 *									-	['filename'] def: a unique filename built from either the
-	 * 																name, title or id, whichever is available
+	 * @param  array basic export options
+	 * @return void
 	 */
 	public function export($options = '')
 	{
@@ -95,10 +93,11 @@ EOF;
 		return false;
 	}
 
-	/*
-	 * public function import()
+	/**
+	 * import an object from XML
 	 *
-	 * @param - $xml - (string) the contents of the XML file to be imported
+	 * @param  string the contents of the XML file to be imported
+	 * @return bool true on success, false on fail
 	*/
 	public function import($xml)
 	{
@@ -148,10 +147,10 @@ EOF;
 		return false;
 	}
 
-	/*
-	 * public function build_row()
-	 *
+	/**
 	 * build a single row of XML markup for this object
+	 *
+	 * @return string|bool the XML markup or false on fail
 	 */
 	public function build_row()
 	{
@@ -177,10 +176,12 @@ EOF;
 		return false;
 	}
 
-	/*
-	 * get_clean_identifier()
+	/**
+	 * returns the name, title or ID (first available-- in that order) to
+	 * be used as a unique identifier
 	 *
-	 * returns the name, title or ID (first available-- in that order) to be used as a unique identifier
+	 * @access  private
+	 * @return string the identifier
 	 */
 	private function get_clean_identifier()
 	{

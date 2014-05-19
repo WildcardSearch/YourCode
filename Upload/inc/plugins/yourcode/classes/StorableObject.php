@@ -1,26 +1,18 @@
 <?php
-/*
- * Plugin Name: YourCode for MyBB 1.6.x
- * Copyright 2013 WildcardSearch
- * http://www.wildcardsworld.com
+/**
+ * storable object definition
+ *
+ * @category  MyBB Plugins
+ * @package   YourCode
+ * @author    Mark Vincent <admin@rantcentralforums.com>
+ * @copyright 2012-2014 Mark Vincent
+ * @license   http://opensource.org/licenses/gpl-license.php GNU Public License
+ * @link      https://github.com/WildcardSearch/YourCode
+ * @since     1.1
  */
 
-/*
+/**
  * standard interface for database storage/retrieval
- *
- * load()
- *
- * load the object from the DB and validate it (hinges on a stored ID)
- *
- * @param - $data - (mixed) either the integer database row ID/Object ID or an associative array of the database row
- *
- * save()
- *
- * this method simply saves the data stored in the object to the database (if it is valid)
- *
- * remove()
- *
- * delete the table row for the object
  */
 interface StorableObjectInterface
 {
@@ -29,28 +21,31 @@ interface StorableObjectInterface
 	public function remove();
 }
 
-/*
+/**
  * standard object for db storage/retrieval
- *
- * provides a generic wrapper for any object that can be stored/retrieved in/from the DB
- * inherits property manipulation methods from MalleableObject and abides by both the inherited MalleableObjectInterface and StorableObjectInterface interfaces
  */
 abstract class StorableObject extends MalleableObject implements StorableObjectInterface
 {
-	// doubles as both the objects ID and the ID of the table row
+	/**
+	 * @var int both the objects ID and the ID of the table row
+	 */
 	protected $id;
 
-	// an associative array of the database table row
+	/**
+	 * @var array the database table row
+	 */
 	protected $data = array();
 
-	// the database table associated with this object
+	/**
+	 * @var string the database table associated with this object
+	 */
 	protected $table_name = '';
 
-	/*
-	 * __construct()
+	/**
+	 * attempt to load and validate the object
 	 *
-	 * @param $data
-	 *	either an integer representing the db ID/Object ID or an associative array of the database table row
+	 * @param  int|array the db/object ID or the database table row
+	 * @return void
 	 */
 	public function __construct($data = '')
 	{
@@ -65,11 +60,11 @@ abstract class StorableObject extends MalleableObject implements StorableObjectI
 		$this->valid = false;
 	}
 
-	/*
-	 * load()
+	/**
+	 * load the object from the database
 	 *
-	 * @param $data
-	 *	either an integer representing the db ID/Object ID or an associative array of the database table row
+	 * @param int|array the db/object ID or the database table row
+	 * @return bool true on success false of fail
 	 */
 	public function load($data)
 	{
@@ -106,10 +101,10 @@ abstract class StorableObject extends MalleableObject implements StorableObjectI
 		return false;
 	}
 
-	/*
-	 * save()
-	 *
+	/**
 	 * stores the objects data in the database
+	 *
+	 * @return mixed false on fail or the return of the database wrapper method called
 	 */
 	public function save()
 	{
@@ -128,24 +123,24 @@ abstract class StorableObject extends MalleableObject implements StorableObjectI
 
 				switch(gettype($this->$property))
 				{
-					case "boolean":
+					case 'boolean':
 						$this->data[$property] = (bool) $value;
 						break;
-					case "integer":
+					case 'integer':
 						$this->data[$property] = (int) $value;
 						break;
-					case "NULL":
+					case 'NULL':
 						$this->data[$property] = NULL;
 						break;
-					case "double":
+					case 'double':
 						$this->data[$property] = (float) $value;
 						break;
-					case "string":
+					case 'string':
 						$this->data[$property] = $db->escape_string($value);
 						break;
-					case "array":
-					case "object":
-					case "resource":
+					case 'array':
+					case 'object':
+					case 'resource':
 						$this->data[$property] = $db->escape_string(json_encode($value));
 						break;
 					default:
@@ -170,10 +165,10 @@ abstract class StorableObject extends MalleableObject implements StorableObjectI
 		return false;
 	}
 
-	/*
-	 * remove()
-	 *
+	/**
 	 * remove the object from the database
+	 *
+	 * @return mixed false on fail or the return of the database wrapper method called
 	 */
 	public function remove()
 	{
