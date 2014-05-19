@@ -1,14 +1,17 @@
 <?php
-/*
- * Plugin Name: YourCode for MyBB 1.6.x
- * Copyright 2013 WildcardSearch
- * http://www.wildcardsworld.com
+/**
+ * malleable object definition
+ *
+ * @category  MyBB Plugins
+ * @package   YourCode
+ * @author    Mark Vincent <admin@rantcentralforums.com>
+ * @copyright 2012-2014 Mark Vincent
+ * @license   http://opensource.org/licenses/gpl-license.php GNU Public License
+ * @link      https://github.com/WildcardSearch/YourCode
+ * @since     1.1
  */
 
-/*
- * MalleableObjectInterface
- *
- * for any object that has properties to be set or retrieved
+/**
  * provides standard data methods and validation for inheritance
 */
 interface MalleableObjectInterface
@@ -18,24 +21,21 @@ interface MalleableObjectInterface
 	public function is_valid();
 }
 
-/*
- * MalleableObject
- *
- * for any object that has properties to be set or retrieved
+/**
  * provides standard data methods and validation for inheritance
  */
 abstract class MalleableObject implements MalleableObjectInterface
 {
+	/**
+	 * @var bool a flag indicating this object was loaded successfully
+	 */
 	protected $valid = false;
 
-	/*
-	 * get()
+	/**
+	 * retrieves a named property or a list of properties
 	 *
-	 * retrieves a named property or a list of properties)
-	 *
-	 * @param - $properties - (mixed) an unindexed array of property names or a single property name
-	 *
-	 * returns - a keyed array of properties and values or a single value
+	 * @param  array|string an array of property names or a single name
+	 * @return a keyed array of properties and values or a single value
 	 */
 	public function get($properties)
 	{
@@ -61,13 +61,12 @@ abstract class MalleableObject implements MalleableObjectInterface
 		}
 	}
 
-	/*
-	 * set()
-	 *
+	/**
 	 * sets a single property or multiple properties at once
 	 *
-	 * @param - $properties - (mixed) a keyed array of properties and their values or a single property name
-	 * @param - $value - (mixed) any data type
+	 * @param  array|string of properties and their values or a single name
+	 * @param  mixed the property value
+	 * @return bool true if successful (property exists) false otherwise
 	 */
 	public function set($properties, $value = '')
 	{
@@ -90,10 +89,10 @@ abstract class MalleableObject implements MalleableObjectInterface
 		return false;
 	}
 
-	/*
-	 * public function is_valid()
-	 *
+	/**
 	 * allows access to the protected valid property
+	 *
+	 * @return bool the valid property value
 	 */
 	public function is_valid()
 	{

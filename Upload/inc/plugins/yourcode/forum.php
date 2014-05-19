@@ -1,14 +1,22 @@
 <?php
-/*
- * Plugin Name: YourCode for MyBB 1.6.x
- * Copyright 2013 WildcardSearch
- * http://www.wildcardsworld.com
+/**
+ * the forum-side routines are housed here
+ *
+ * @category  MyBB Plugins
+ * @package   YourCode
+ * @author    Mark Vincent <admin@rantcentralforums.com>
+ * @copyright 2012-2014 Mark Vincent
+ * @license   http://opensource.org/licenses/gpl-license.php GNU Public License
+ * @link      https://github.com/WildcardSearch/YourCode
+ * @since     1.0
  */
 
-/*
- * yourcode_run($message)
+/**
+ * implements the parser hook to check the mycode cache and
+ * store our codes before MyBB has a chance to
  *
- * implements the parser hook to check the mycode cache and store our codes before MyBB has a chance to
+ * @param  string the post message
+ * @return string the altered message
  */
 $plugins->add_hook('parse_message_start', 'yourcode_run', 1);
 function yourcode_run($message)
@@ -58,16 +66,63 @@ function yourcode_run($message)
 		}
 		$parser->mycode_cache = $yourcode['active']['simple'];
 	}
+
 	// give back what was freely given to us
 	return $message;
 }
 
-/*
- * yourcode_datahandler_post_update()
+/**
+ * allows any active modules to parse the message
  *
- * blocks unauthorized users from posting restricted YourCode on Quick Reply
+ * @param  string the post message
+ * @return string the altered message
  */
-$plugins->add_hook("datahandler_post_update", "yourcode_datahandler_post_update");
+$plugins->add_hook('parse_message', 'yourcode_run_modules', 1);
+function yourcode_run_modules($message)
+{
+	static $yourcode, $all_modules;
+
+	// we have to consider several sequential iterations calling the method we have hooked into
+	if(!isset($yourcode) || !is_array($yourcode) || empty($yourcode))
+	{
+		// load the cache if this is the first run
+		global $cache;
+		$yourcode = $cache->read('yourcode');
+	}
+
+	// are there any active modules?
+	if(is_array($yourcode['active']['modules']) && !empty($yourcode['active']['modules']))
+	{
+		if(!$all_modules)
+		{
+			// load all the active modules as an array of objects
+			require_once MYBB_ROOT . "inc/plugins/yourcode/functions.php";
+			require_once MYBB_ROOT . "inc/plugins/yourcode/classes/YourCodeModule.php";
+			$all_modules = yourcode_get_modules($yourcode['active']['modules']);
+		}
+
+		// check again to be sure there were results
+		if(is_array($all_modules) && !empty($all_modules))
+		{
+			foreach($all_modules as $module)
+			{
+				// then let each module have their way with the message >:D
+				$message = $module->parse_message($message);
+			}
+		}
+	}
+
+	// give back what was freely given to us
+	return $message;
+}
+
+/**
+ * blocks unauthorized users from posting restricted YourCode on Quick Reply
+ *
+ * @param  object the post data object
+ * @return void
+ */
+$plugins->add_hook('datahandler_post_update', 'yourcode_datahandler_post_update');
 function yourcode_datahandler_post_update($this_post)
 {
 	global $cache, $posthandler, $db, $message;
@@ -79,10 +134,10 @@ function yourcode_datahandler_post_update($this_post)
 	$posthandler->post_update_data['message'] = $db->escape_string($message);
 }
 
-/*
- * yourcode_newreply_do_new_start()
- *
+/**
  * blocks unauthorized users from posting restricted YourCode on new thread/reply full
+ *
+ * @return void
  */
 $plugins->add_hook('newreply_do_newreply_start', 'yourcode_newreply_do_new_start');
 $plugins->add_hook('newthread_do_newthread_start', 'yourcode_newreply_do_new_start');
@@ -96,13 +151,12 @@ function yourcode_newreply_do_new_start()
 	$mybb->input['message'] = yourcode_police_message($all_codes, $mybb->input['message']);
 }
 
-/*
- * yourcode_police_message()
- *
+/**
  * removes restricted YourCode from a disallowed user's post message
  *
- * @param - $codes - (array) the restricted YourCode (note: not in object form)
- * @param - $message - (string) the post contents
+ * @param  array the restricted YourCode (note: not in object form)
+ * @param  string the post contents
+ * @return string the altered message
  */
 function yourcode_police_message(array $codes, $message)
 {
@@ -110,17 +164,17 @@ function yourcode_police_message(array $codes, $message)
 	{
 		foreach($codes as $code)
 		{
-			if($code['can_use'])
+			if(!$code['can_use'] || yourcode_check_user_permissions($code['can_use']))
 			{
-				if(!yourcode_check_user_permissions($code['can_use']))
-				{
-					$has_changed = true;
-					while(preg_match($code['regex'], $message))
-					{
-						$message = preg_replace($code['regex'], '', $message);
-					}
-				}
+				continue;
 			}
+
+			$has_changed = true;
+			while($message && preg_match($code['regex'], $message))
+			{
+				$message = preg_replace($code['regex'], '', $message);
+			}
+
 			if(!$message)
 			{
 				break;
@@ -130,12 +184,11 @@ function yourcode_police_message(array $codes, $message)
 	return $message;
 }
 
-/*
- * function yourcode_check_user_permissions()
- *
+/**
  * check the current user's permissions against a list of allowed groups
  *
  * @param - $good_groups - (mixed) an unindexed array of allowed group IDs or a comma-separated list of allowed group IDs
+ * @return bool true if the user can view the YourCode, false if not
  */
 function yourcode_check_user_permissions($good_groups)
 {
