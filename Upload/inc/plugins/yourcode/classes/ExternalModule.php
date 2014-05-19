@@ -2,8 +2,8 @@
 /**
  * Wildcard Helper Classes - External PHP Module Wrapper
  *
- * a generic installer for MyBB Plugins that accepts a data file and performs
- * installation functions in a non-destructive way according to the provided information
+ * for facilitating the safe use of external PHP modules from within a MYBB
+ * plugin
  *
  * @category  MyBB Plugins
  * @package   YourCode
@@ -37,11 +37,34 @@ interface ExternalModuleInterface
  */
 abstract class ExternalModule extends MalleableObject implements ExternalModuleInterface
 {
+	/**
+	 * @var string the module title
+	 */
 	protected $title = '';
+
+	/**
+	 * @var string the module description
+	 */
 	protected $description = '';
-	protected $version = 0;
+
+	/**
+	 * @var string the module version
+	 */
+	protected $version = '0';
+
+	/**
+	 * @var the module path
+	 */
 	protected $path = '';
+
+	/**
+	 * @var the module prefix
+	 */
 	protected $prefix = '';
+
+	/**
+	 * @var the internal module name
+	 */
 	protected $base_name = '';
 
 	/**

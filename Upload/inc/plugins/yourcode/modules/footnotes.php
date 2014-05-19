@@ -5,7 +5,7 @@
  * @category   MyBB Plugins
  * @package    YourCode
  * @subpackage Addon Modules
- * @name   Footnotes
+ * @name       Footnotes
  * @author     Mark Vincent <admin@rantcentralforums.com>
  * @copyright  2012-2014 Mark Vincent
  * @license    http://opensource.org/licenses/gpl-license.php GNU Public License

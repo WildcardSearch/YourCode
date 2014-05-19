@@ -5,7 +5,7 @@
  * @category   MyBB Plugins
  * @package    YourCode
  * @subpackage Addon Modules
- * @name   Marquee
+ * @name       Marquee
  * @author     Mark Vincent <admin@rantcentralforums.com>
  * @copyright  2012-2014 Mark Vincent
  * @license    http://opensource.org/licenses/gpl-license.php GNU Public License
@@ -13,7 +13,7 @@
  * @since      1.1
  * @example
  *
- * [marquee={behavior},{direction},{width}x{height},{scrollAmount},{$scrollDelay}]
+ * [marquee={behavior},{direction},{width}x{height},{scrollAmount},{scrollDelay}]
  * This is an example sentence.
  * [/marquee]
  */

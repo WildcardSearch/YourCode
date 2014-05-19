@@ -1,10 +1,17 @@
 <?php
-/*
- * Wildcard Helper Classes
- * ACP - MyBB Plug-in Installer
+/**
+ * Wildcard Helper Classes - Plug-in Installer
  *
- * a generic installer for MyBB Plug-ins that accepts a data file and performs
+ * a generic installer for MyBB Plugins that accepts a data file and performs
  * installation functions in a non-destructive way according to the provided information
+ *
+ * @category  MyBB Plugins
+ * @package   YourCode
+ * @author    Mark Vincent <admin@rantcentralforums.com>
+ * @copyright 2012-2014 Mark Vincent
+ * @license   http://opensource.org/licenses/gpl-license.php GNU Public License
+ * @link      https://github.com/WildcardSearch/YourCode
+ * @since     1.1
  */
 
 class WildcardPluginInstaller
