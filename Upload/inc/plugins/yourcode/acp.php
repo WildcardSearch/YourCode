@@ -637,14 +637,14 @@ function yourcode_admin_module()
 					continue;
 				}
 
-				$c_level = 2;
+				$deleted = false;
 				switch($mybb->input['inline_action']) {
 				case 'delete':
 					if(!$this_module->remove())
 					{
 						continue 2;
 					}
-					$c_level = 1;
+					$deleted = true;
 				default:
 					if($mybb->input['inline_action'] == 'activate')
 					{
@@ -660,7 +660,11 @@ function yourcode_admin_module()
 					{
 						if(!in_array($name, $active_modules))
 						{
-							continue $c_level;
+							if($deleted)
+							{
+								continue 1;
+							}
+							continue 2;
 						}
 
 						// deactivate
