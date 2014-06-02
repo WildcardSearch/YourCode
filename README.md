@@ -1,4 +1,4 @@
-## YourCode 1.1
+## YourCode 1.1.1
 
 *Forget MyCode. Take control of YourCode-- a much better way of handling BB Code for MyBB forums*
 
