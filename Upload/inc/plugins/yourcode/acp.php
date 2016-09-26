@@ -562,20 +562,20 @@ function yourcode_admin_edit()
 	echo <<<EOF
 <script type="text/javascript" src="./jscripts/yourcode/yourcode_sandbox.js"></script>
 <script type="text/javascript">
-Event.observe(window, "load", function() {
+$(document).ready(function() {
 <!--
 new YourCode.Sandbox("./index.php?module=config-yourcode&action=edit&mode=xmlhttp", {
-		button: $("test"),
-		regexTextbox: $("regex"),
-		replacementTextbox: $("replacement"),
-		testTextbox: $("test_value"),
-		htmlTextbox: $("result_html"),
-		actualDiv: $("result_actual"),
-		nestableInput: $('nestable'),
-		caseSensitiveInput: $('case_sensitive'),
-		singleLineInput: $('single_line'),
-		multiLineInput: $('multi_line'),
-		evalInput: $('eval'),
+		button: $("#test"),
+		regexTextbox: $("#regex"),
+		replacementTextbox: $("#replacement"),
+		testTextbox: $("#test_value"),
+		htmlTextbox: $("#result_html"),
+		actualDiv: $("#result_actual"),
+		nestableInput: $('#nestable'),
+		caseSensitiveInput: $('#case_sensitive'),
+		singleLineInput: $('#single_line'),
+		multiLineInput: $('#multi_line'),
+		evalInput: $('#eval'),
 	});
 });
 // -->
@@ -986,7 +986,7 @@ function yourcode_admin_tools()
 	yourcode_output_tabs('yourcode_tools');
 
 	$onsubmit = <<<EOF
-if($('file_s').value) { return true; } alert('{$lang->yourcode_import_no_file}'); return false;
+if($('#file_s').val()) { return true; } alert('{$lang->yourcode_import_no_file}'); return false;
 EOF;
 
 	$form = new Form($html->url(array("action" => 'import')), 'post', '', 1, '', '', $onsubmit);

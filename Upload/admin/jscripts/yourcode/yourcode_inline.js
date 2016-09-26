@@ -34,10 +34,10 @@ var YourCode = (function(yc) {
 	 */
 	function init() {
 		initialCount();
-		$('yc_select_all').observe('click', selectAll);
-		$$('.yc_check').invoke('observe', 'click', keepCount);
-		$('yc_inline_clear').observe('click', clearAll);
-		$('yc_inline_submit').observe('click', submitCheck);
+		$('#yc_select_all').click(selectAll);
+		$('.yc_check').click(keepCount);
+		$('#yc_inline_clear').click(clearAll);
+		$('#yc_inline_submit').click(submitCheck);
 	}
 
 	/**
@@ -47,7 +47,7 @@ var YourCode = (function(yc) {
 	 * @return void
 	 */
 	function setup(language) {
-		Object.extend(lang, language || {});
+		$.extend(lang, language || {});
 	}
 
 	/**
@@ -58,7 +58,7 @@ var YourCode = (function(yc) {
 	 */
 	function submitCheck(e) {
 		if (!checkCount) {
-			Event.stop(e);
+			e.preventDefault();
 			alert(lang.noSelection);
 		}
 	}
@@ -72,7 +72,7 @@ var YourCode = (function(yc) {
 	function selectAll(e) {
 		var onOff = false;
 
-		if(this.checked) {
+		if($(this).prop("checked")) {
 			onOff = true;
 		}
 		setAllChecks(onOff);
@@ -89,9 +89,9 @@ var YourCode = (function(yc) {
 			onOff = false;
 		}
 		checkCount = 0;
-		$('yc_select_all').checked = onOff;
-		$$('.yc_check').each(function(check) {
-			check.checked = onOff;
+		$('#yc_select_all').prop("checked", onOff);
+		$('.yc_check').each(function(k, check) {
+			$(check).prop("checked", onOff);
 			if (onOff) {
 				++checkCount;
 			}
@@ -106,7 +106,7 @@ var YourCode = (function(yc) {
 	 * @return void
 	 */
 	function keepCount(e) {
-		if(this.checked) {
+		if(this.prop("checked")) {
 			++checkCount;
 		} else {
 			--checkCount;
@@ -120,7 +120,7 @@ var YourCode = (function(yc) {
 	 * @return void
 	 */
 	function updateCheckCount() {
-		$('yc_inline_submit').value = lang.go + ' (' + checkCount + ')';
+		$('#yc_inline_submit').val(lang.go + ' (' + checkCount + ')');
 	}
 
 	/**
@@ -140,15 +140,15 @@ var YourCode = (function(yc) {
 	 */
 	function initialCount() {
 		checkCount = 0;
-		$$('.yc_check').each(function(check) {
-			if (check.checked) {
+		$('.yc_check').each(function(k, check) {
+			if ($(check).prop("checked")) {
 				++checkCount;
 			}
 		});
 		updateCheckCount();
 	}
 
-	Event.observe(window, 'load', init);
+	$(document).ready(init);
 
 	// the public method
 	yc.inline = {

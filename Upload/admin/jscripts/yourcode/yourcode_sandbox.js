@@ -24,7 +24,7 @@ var YourCode = (function(yc) {
 	function Sandbox(url, elements) {
 		var allGood = true;
 
-		['button', 'regexTextbox', 'replacementTextbox', 'testTextbox', 'htmlTextbox', 'actualDiv', 'nestableInput', 'caseSensitiveInput', 'singleLineInput', 'multiLineInput', 'evalInput'].each(function(key) {
+		$.each(['button', 'regexTextbox', 'replacementTextbox', 'testTextbox', 'htmlTextbox', 'actualDiv', 'nestableInput', 'caseSensitiveInput', 'singleLineInput', 'multiLineInput', 'evalInput'], function(k, key) {
 			if (elements && elements[key]) {
 				this[key] = elements[key];
 			} else {
@@ -38,7 +38,7 @@ var YourCode = (function(yc) {
 		}
 
 		this.url = url;
-		this.button.observe('click', this.update.bindAsEventListener(this));
+		this.button.click($.proxy(this.update, this));
 	}
 
 	/**
@@ -49,27 +49,26 @@ var YourCode = (function(yc) {
 	 */
 	function update(e) {
 		var fn = encodeURIComponent;
-		Event.stop(e);
+		e.preventDefault();
 
 		// build the data
-		postData = "regex=" + fn(this.regexTextbox.value) +
-			"&replacement=" + fn(this.replacementTextbox.value) +
-			"&test_value=" + fn(this.testTextbox.value) +
+		postData = "regex=" + fn(this.regexTextbox.val()) +
+			"&replacement=" + fn(this.replacementTextbox.val()) +
+			"&test_value=" + fn(this.testTextbox.val()) +
 			"&my_post_key=" + fn(my_post_key) +
-			(this.nestableInput.checked ? '&nestable=1' : '') +
-			(this.caseSensitiveInput.checked ? '&case_sensitive=1' : '') +
-			(this.singleLineInput.checked ? '&single_line=1' : '') +
-			(this.multiLineInput.checked ? '&multi_line=1' : '') +
-			(this.evalInput.checked ? '&eval=1' : '');
+			(this.nestableInput.prop("checked") ? '&nestable=1' : '') +
+			(this.caseSensitiveInput.prop("checked") ? '&case_sensitive=1' : '') +
+			(this.singleLineInput.prop("checked") ? '&single_line=1' : '') +
+			(this.multiLineInput.prop("checked") ? '&multi_line=1' : '') +
+			(this.evalInput.prop("checked") ? '&eval=1' : '');
 
-		this.spinner = new ActivityIndicator("body", {
-			image: this.spinnerImage
-		});
-
-		new Ajax.Request(this.url, {
-			method: 'post',
-			postBody: postData,
-			onComplete: this.onComplete.bind(this)
+		$.jGrowl("updating...");
+		
+		$.ajax({
+			type: 'post',
+			url: this.url,
+			data: postData,
+			complete: $.proxy(this.onComplete, this),
 		});
 	}
 
@@ -86,13 +85,11 @@ var YourCode = (function(yc) {
 			if (!message[1]) {
 				message[1] = "An unknown error occurred.";
 			}
-			alert('There was an error fetching the test results.\n\n' + message[1]);
+			$.jGrowl('There was an error fetching the test results.\n\n' + message[1]);
 		} else if(transport.responseText) {
-			this.actualDiv.innerHTML = transport.responseText;
-			this.htmlTextbox.value = transport.responseText;
+			this.actualDiv.html(transport.responseText);
+			this.htmlTextbox.val(transport.responseText);
 		}
-
-		this.spinner.destroy();
 		return true;
 	}
 
@@ -109,7 +106,6 @@ var YourCode = (function(yc) {
 		singleLineInput: null,
 		multiLineInput: null,
 		evalInput: null,
-		spinnerImage: "../images/spinner_big.gif",
 		update: update,
 		onComplete: onComplete,
 	}
