@@ -59,7 +59,7 @@ var YourCode = (function(yc) {
 	function submitCheck(e) {
 		if (!checkCount) {
 			e.preventDefault();
-			alert(lang.noSelection);
+			$.jGrowl(lang.noSelection);
 		}
 	}
 

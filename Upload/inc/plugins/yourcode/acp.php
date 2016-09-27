@@ -1095,10 +1095,10 @@ function yourcode_admin_import()
 
 			$total = count($codes);
 			$onclick = <<<EOF
-var all_checks = $$('input.checkbox_input'); if(this.checked) { checked = true; } for(x = 0; x < all_checks.length; x++) { all_checks[x].checked = checked; }
+var all_checks = $('input.checkbox_input'); if(this.checked) { checked = true; } for(x = 0; x < all_checks.length; x++) { all_checks[x].checked = checked; }
 EOF;
 			$onsubmit = <<<EOF
-var all_checks = $$('input.checkbox_input'); for(x = 0; x < all_checks.length; x++) { if(all_checks[x].checked) { return true; } } alert('{$lang->yourcode_import_selection_error}'); return false;
+var all_checks = $('input.checkbox_input'); for(x = 0; x < all_checks.length; x++) { if(all_checks[x].checked) { return true; } } alert('{$lang->yourcode_import_selection_error}'); return false;
 EOF;
 			$form = new Form($html->url(array("action" => 'import', "mode" => 'finish')), 'post', '', '', '', '', $onsubmit);
 			$form_container = new FormContainer($lang->yourcode_import);
