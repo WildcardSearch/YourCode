@@ -69,8 +69,8 @@ EOF;
 		"website" => 'https://github.com/WildcardSearch/YourCode',
 		"author" => $author,
 		"authorsite" => 'http://www.rantcentralforums.com',
-		"version" => '1.1.1',
-		"compatibility" => '16*',
+		"version" => '2.0',
+		"compatibility" => '18*',
 		"guid" => '36a18ebc285a181a42561141adfd1d7f',
 	);
 }
