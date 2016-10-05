@@ -50,6 +50,9 @@ function yourcode_run($message)
 				$yourcode['active']['simple']['standard']['replacement'][] = $code['replacement'];
 			}
 		}
+
+		$yourcode['active']['simple']['standard_count'] = count($yourcode['active']['simple']['standard']);
+
 		if(is_array($yourcode['active']['restricted_view']['nestable']) && !empty($yourcode['active']['restricted_view']['nestable']))
 		{
 			foreach($yourcode['active']['restricted_view']['nestable'] as $code)
@@ -64,6 +67,10 @@ function yourcode_run($message)
 				$yourcode['active']['simple']['nestable'][] = array('find' => $code['find'], 'replacement' => $code['replacement']);
 			}
 		}
+
+		$yourcode['active']['simple']['nestable_count'] = count($yourcode['active']['simple']['nestable']);
+		$yourcode['active']['simple']['callback_count'] = count($yourcode['active']['simple']['callback']);
+
 		$parser->mycode_cache = $yourcode['active']['simple'];
 	}
 
