@@ -1037,6 +1037,11 @@ function yourcode_admin_import()
 
 	if($mybb->request_method == 'post')
 	{
+		if($mybb->input['import'] == $lang->yourcode_cancel)
+		{
+			admin_redirect($html->url(array("action" => 'tools')));
+		}
+
 		if($mybb->input['mode'] == 'finish')
 		{
 			if(is_array($mybb->input['export_ids']) && !empty($mybb->input['export_ids']))
@@ -1100,7 +1105,7 @@ EOF;
 			$onsubmit = <<<EOF
 var all_checks = $('input.checkbox_input'); for(x = 0; x < all_checks.length; x++) { if(all_checks[x].checked) { return true; } } alert('{$lang->yourcode_import_selection_error}'); return false;
 EOF;
-			$form = new Form($html->url(array("action" => 'import', "mode" => 'finish')), 'post', '', '', '', '', $onsubmit);
+			$form = new Form($html->url(array("action" => 'import', "mode" => 'finish')), 'post');
 			$form_container = new FormContainer($lang->yourcode_import);
 
 			$percentage = 45;
@@ -1158,7 +1163,9 @@ EOF;
 			$form_container->output_cell('&nbsp;');
 			$form_container->construct_row();
 			$form_container->end();
-			$buttons = array($form->generate_submit_button($lang->yourcode_import, array('name' => 'import')));
+			$buttons = array();
+			$buttons[] = $form->generate_submit_button($lang->yourcode_import, array("onclick" => $onsubmit, "name" => 'import'));
+			$buttons[] = $form->generate_submit_button($lang->yourcode_cancel, array("name" => 'import'));
 			$form->output_submit_wrapper($buttons);
 			$form->end();
 		}
