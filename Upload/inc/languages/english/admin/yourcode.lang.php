@@ -17,6 +17,7 @@ $l['yourcode_plugin_description'] = "Forget MyCode. Take control of YourCode's m
 // general
 $l['yourcode_yes'] = 'Yes';
 $l['yourcode_no'] = 'No';
+$l['yourcode_cancel'] = 'Cancel';
 
 // columns and labels
 $l['yourcode_activate'] = 'Activate';

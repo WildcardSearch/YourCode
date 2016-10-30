@@ -29,7 +29,7 @@ var YourCode = (function(yc) {
 
 	/**
 	 * initiate the selected count and observe inputs
-	 * 
+	 *
 	 * @return void
 	 */
 	function init() {
@@ -42,7 +42,7 @@ var YourCode = (function(yc) {
 
 	/**
 	 * allow custom language overrides
-	 * 
+	 *
 	 * @param  object the custom language
 	 * @return void
 	 */
@@ -52,7 +52,7 @@ var YourCode = (function(yc) {
 
 	/**
 	 * squeal if admin is submitting inline with nothing checked
-	 * 
+	 *
 	 * @param  object the event
 	 * @return void
 	 */
@@ -65,7 +65,7 @@ var YourCode = (function(yc) {
 
 	/**
 	 * sync all check boxes on this page with the master
-	 * 
+	 *
 	 * @param  object the event
 	 * @return void
 	 */
@@ -80,7 +80,7 @@ var YourCode = (function(yc) {
 
 	/**
 	 * set all check boxes on this page on/off
-	 * 
+	 *
 	 * @param  bool true for checked, false for unchecked
 	 * @return void
 	 */
@@ -101,12 +101,12 @@ var YourCode = (function(yc) {
 
 	/**
 	 * adjust checked count on-the-fly
-	 * 
+	 *
 	 * @param  object the event
 	 * @return void
 	 */
 	function keepCount(e) {
-		if(this.prop("checked")) {
+		if(this.checked) {
 			++checkCount;
 		} else {
 			--checkCount;
@@ -116,7 +116,7 @@ var YourCode = (function(yc) {
 
 	/**
 	 * update the go button text to reflect the currently checked count
-	 * 
+	 *
 	 * @return void
 	 */
 	function updateCheckCount() {
@@ -125,7 +125,7 @@ var YourCode = (function(yc) {
 
 	/**
 	 * clear all check boxes when the clear button is clicked
-	 * 
+	 *
 	 * @param  object the event
 	 * @return void
 	 */
@@ -135,7 +135,7 @@ var YourCode = (function(yc) {
 
 	/**
 	 * count the initially checked boxes
-	 * 
+	 *
 	 * @return void
 	 */
 	function initialCount() {

@@ -1,4 +1,4 @@
-## YourCode 2.0.1
+## YourCode 2.0.2
 for MyBB 1.8.x
 
 *Forget MyCode. Take control of YourCode-- a much better way of handling BB Code for MyBB forums*
@@ -13,7 +13,7 @@ At uninstall everything goes back to normal. No trash left behind and no effects
 
 * YourCode is nestable.
 * YourCode can use a wider range of regex options including case sensitivity, single line, multi-line and eval() modes.
-* YourCode can Import/Export to XML files to share, backup or restore your work-- one at a time or en mass.
+* YourCode can Import/Export to XML files to share, backup or restore your work-- one at a time or en masse.
 * YourCode uses MyBB's internal parser to handle the actual regex replacements so its footprint is minimal.
 * YourCode can have individual group permission for use and viewing separately.
 * YourCode has alternate replacements for those who do not have permission to view them.
