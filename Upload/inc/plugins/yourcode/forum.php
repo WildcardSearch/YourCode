@@ -132,7 +132,12 @@ function yourcode_run_modules($message)
 $plugins->add_hook('datahandler_post_update', 'yourcode_datahandler_post_update');
 function yourcode_datahandler_post_update($this_post)
 {
-	global $cache, $posthandler, $db, $message;
+	global $mybb, $cache, $posthandler, $db, $message;
+	if (THIS_SCRIPT == 'xmlhttp.php' &&
+		$mybb->input['action'] == 'edit_subject') {
+		return;
+	}
+
 	$yourcode = $cache->read('yourcode');
 
 	$all_codes = array_merge((array) $yourcode['active']['restricted_use']['standard'], (array) $yourcode['active']['restricted_use']['nestable']);
