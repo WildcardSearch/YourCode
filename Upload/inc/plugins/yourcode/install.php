@@ -69,7 +69,7 @@ EOF;
 		"website" => 'https://github.com/WildcardSearch/YourCode',
 		"author" => $author,
 		"authorsite" => 'http://www.rantcentralforums.com',
-		"version" => '2.0.3',
+		"version" => '2.0.4',
 		"compatibility" => '18*',
 		"guid" => '36a18ebc285a181a42561141adfd1d7f',
 	);
