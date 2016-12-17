@@ -28,15 +28,10 @@ function yourcode_info()
 	if(yourcode_is_installed())
 	{
 		$extra_links = "<ul><li style=\"list-style-image: url(styles/{$cp_style}/images/yourcode/manage.gif)\"><a href=\"" . YOURCODE_URL . "\" title=\"{$lang->yourcode_admin_view}\">{$lang->yourcode_admin_view}</a></li></ul>";
-	}
-	else
-	{
-		$extra_links = '<br />';
-	}
 
-	$button_pic = "styles/{$cp_style}/images/yourcode/donate.gif";
-	$border_pic = "styles/{$cp_style}/images/yourcode/pixel.gif";
-	$yourcode_description = <<<EOF
+		$button_pic = "styles/{$cp_style}/images/yourcode/donate.gif";
+		$border_pic = "styles/{$cp_style}/images/yourcode/pixel.gif";
+		$yourcode_description = <<<EOF
 <table width="100%">
 	<tbody>
 		<tr>
@@ -54,6 +49,12 @@ function yourcode_info()
 	</tbody>
 </table>
 EOF;
+	}
+	else
+	{
+		$extra_links = '<br />';
+		$yourcode_description = $lang->yourcode_plugin_description;
+	}
 
 	$name = <<<EOF
 <span style="font-familiy: arial; font-size: 1.5em; color: #BB0000; text-shadow: 2px 2px 2px #880000;">{$lang->yourcode}</span>
@@ -69,7 +70,7 @@ EOF;
 		"website" => 'https://github.com/WildcardSearch/YourCode',
 		"author" => $author,
 		"authorsite" => 'http://www.rantcentralforums.com',
-		"version" => '2.0.3',
+		"version" => '2.0.4',
 		"compatibility" => '18*',
 		"guid" => '36a18ebc285a181a42561141adfd1d7f',
 	);

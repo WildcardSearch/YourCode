@@ -24,55 +24,61 @@ function yourcode_run($message)
 	global $parser;
 	static $yourcode;
 
-	// if the parser's MyCode cache is anything other than the default value then we have already been here
-	if($parser->mycode_cache == 0)
-	{
-		// we have to consider several sequential iterations calling the method we have hooked into
-		if(!isset($yourcode) || !is_array($yourcode) || empty($yourcode))
-		{
-			// load the cache if this is the first run
-			global $cache;
-			$yourcode = $cache->read('yourcode');
-		}
-
-		if(is_array($yourcode['active']['restricted_view']['standard']) && !empty($yourcode['active']['restricted_view']['standard']))
-		{
-			foreach($yourcode['active']['restricted_view']['standard'] as $code)
-			{
-				if($code['can_view'])
-				{
-					if(!yourcode_check_user_permissions($code['can_view']))
-					{
-						$code['replacement'] = $code['alt_replacement'];
-					}
-				}
-				$yourcode['active']['simple']['standard']['find'][] = $code['find'];
-				$yourcode['active']['simple']['standard']['replacement'][] = $code['replacement'];
-			}
-		}
-
-		$yourcode['active']['simple']['standard_count'] = count($yourcode['active']['simple']['standard']);
-
-		if(is_array($yourcode['active']['restricted_view']['nestable']) && !empty($yourcode['active']['restricted_view']['nestable']))
-		{
-			foreach($yourcode['active']['restricted_view']['nestable'] as $code)
-			{
-				if($code['can_view'])
-				{
-					if(!yourcode_check_user_permissions($code['can_view']))
-					{
-						$code['replacement'] = $code['alt_replacement'];
-					}
-				}
-				$yourcode['active']['simple']['nestable'][] = array('find' => $code['find'], 'replacement' => $code['replacement']);
-			}
-		}
-
-		$yourcode['active']['simple']['nestable_count'] = count($yourcode['active']['simple']['nestable']);
-		$yourcode['active']['simple']['callback_count'] = count($yourcode['active']['simple']['callback']);
-
-		$parser->mycode_cache = $yourcode['active']['simple'];
+	/*
+	 * if the parser isn't valid or its MyCode cache is
+	 * anything other than the default value then there is
+	 * nothing to do
+	 */
+	if ($parser instanceof postParser != true ||
+		$parser->mycode_cache !== 0) {
+		return $message;
 	}
+
+	// we have to consider several sequential iterations calling the method we have hooked into
+	if(!isset($yourcode) || !is_array($yourcode) || empty($yourcode))
+	{
+		// load the cache if this is the first run
+		global $cache;
+		$yourcode = $cache->read('yourcode');
+	}
+
+	if(is_array($yourcode['active']['restricted_view']['standard']) && !empty($yourcode['active']['restricted_view']['standard']))
+	{
+		foreach($yourcode['active']['restricted_view']['standard'] as $code)
+		{
+			if($code['can_view'])
+			{
+				if(!yourcode_check_user_permissions($code['can_view']))
+				{
+					$code['replacement'] = $code['alt_replacement'];
+				}
+			}
+			$yourcode['active']['simple']['standard']['find'][] = $code['find'];
+			$yourcode['active']['simple']['standard']['replacement'][] = $code['replacement'];
+		}
+	}
+
+	$yourcode['active']['simple']['standard_count'] = count($yourcode['active']['simple']['standard']);
+
+	if(is_array($yourcode['active']['restricted_view']['nestable']) && !empty($yourcode['active']['restricted_view']['nestable']))
+	{
+		foreach($yourcode['active']['restricted_view']['nestable'] as $code)
+		{
+			if($code['can_view'])
+			{
+				if(!yourcode_check_user_permissions($code['can_view']))
+				{
+					$code['replacement'] = $code['alt_replacement'];
+				}
+			}
+			$yourcode['active']['simple']['nestable'][] = array('find' => $code['find'], 'replacement' => $code['replacement']);
+		}
+	}
+
+	$yourcode['active']['simple']['nestable_count'] = count($yourcode['active']['simple']['nestable']);
+	$yourcode['active']['simple']['callback_count'] = count($yourcode['active']['simple']['callback']);
+
+	$parser->mycode_cache = $yourcode['active']['simple'];
 
 	// give back what was freely given to us
 	return $message;
