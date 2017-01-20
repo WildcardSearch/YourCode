@@ -79,6 +79,11 @@ class YourCode extends PortableObject
 	protected $eval = false;
 
 	/**
+	 * @var bool whether uses a callback
+	 */
+	protected $callback = false;
+
+	/**
 	 * @var string the regular expression
 	 */
 	protected $regex = '';
@@ -102,6 +107,11 @@ class YourCode extends PortableObject
 	 * @var string a comma-separated list of groups that can view this code
 	 */
 	protected $can_view = '';
+
+	/**
+	 * @var int internal
+	 */
+	protected $default_id = 0;
 
 	/**
 	 * create a new YourCode object

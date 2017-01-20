@@ -35,7 +35,7 @@ function yourcode_build_cache($codelist = '')
 			"replacement" => array()
 		),
 		"nestable" => array(),
-		"callback" => array()
+		"callback" => array(),
 	);
 
 	if(is_array($codelist) && !empty($codelist))
@@ -69,6 +69,10 @@ function yourcode_build_cache($codelist = '')
 				{
 					$restricted_view_code['nestable'][(int) $code->get('id')] = array("find" => $regex, "replacement" => $code->get('replacement'), "alt_replacement" => $code->get('alt_replacement'), "can_view" => $code->get('can_view'));
 				}
+				elseif($code->get('callback'))
+				{
+					$restricted_view_code['callback'][(int) $code->get('id')] = array("find" => $regex, "replacement" => $code->get('replacement'), "alt_replacement" => $code->get('alt_replacement'), "can_view" => $code->get('can_view'));
+				}
 				else
 				{
 					$restricted_view_code['standard'][(int) $code->get('id')]['find'] = $regex;
@@ -82,6 +86,10 @@ function yourcode_build_cache($codelist = '')
 				if($code->get('nestable'))
 				{
 					$mycode_cache['nestable'][] = array('find' => $regex, 'replacement' => $code->get('replacement'));
+				}
+				elseif($code->get('callback'))
+				{
+					$mycode_cache['callback'][] = array('find' => $regex, 'replacement' => $code->get('replacement'));
 				}
 				else
 				{
@@ -97,6 +105,10 @@ function yourcode_build_cache($codelist = '')
 				if($code->get('nestable'))
 				{
 					$restricted_use_code['nestable'][(int) $code->get('id')] = array("regex" => $regex, "can_use" => $code->get('can_use'));
+				}
+				elseif($code->get('callback'))
+				{
+					$restricted_use_code['callback'][(int) $code->get('id')] = array("regex" => $regex, "can_use" => $code->get('can_use'));
 				}
 				else
 				{

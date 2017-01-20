@@ -76,7 +76,26 @@ function yourcode_run($message)
 	}
 
 	$yourcode['active']['simple']['nestable_count'] = count($yourcode['active']['simple']['nestable']);
+
+	if(is_array($yourcode['active']['restricted_view']['callback']) && !empty($yourcode['active']['restricted_view']['callback']))
+	{
+		foreach($yourcode['active']['restricted_view']['callback'] as $code)
+		{
+			if($code['can_view'])
+			{
+				if(!yourcode_check_user_permissions($code['can_view']))
+				{
+					$code['replacement'] = $code['alt_replacement'];
+				}
+			}
+			$yourcode['active']['simple']['callback'][] = array('find' => $code['find'], 'replacement' => $code['replacement']);
+		}
+	}
 	$yourcode['active']['simple']['callback_count'] = count($yourcode['active']['simple']['callback']);
+
+	foreach($yourcode['active']['simple']['callback'] as &$code) {
+		$code['replacement'] = array($parser, $code['replacement']);
+	}
 
 	$parser->mycode_cache = $yourcode['active']['simple'];
 
@@ -146,7 +165,7 @@ function yourcode_datahandler_post_update($this_post)
 
 	$yourcode = $cache->read('yourcode');
 
-	$all_codes = array_merge((array) $yourcode['active']['restricted_use']['standard'], (array) $yourcode['active']['restricted_use']['nestable']);
+	$all_codes = array_merge((array) $yourcode['active']['restricted_use']['standard'], (array) $yourcode['active']['restricted_use']['nestable'], (array) $yourcode['active']['restricted_use']['callback']);
 
 	$message = yourcode_police_message($all_codes, $this_post->data['message']);
 	$posthandler->post_update_data['message'] = $db->escape_string($message);
@@ -164,7 +183,7 @@ function yourcode_newreply_do_new_start()
 	global $mybb, $cache;
 	$yourcode = $cache->read('yourcode');
 
-	$all_codes = array_merge((array) $yourcode['active']['restricted_use']['standard'], (array) $yourcode['active']['restricted_use']['nestable']);
+	$all_codes = array_merge((array) $yourcode['active']['restricted_use']['standard'], (array) $yourcode['active']['restricted_use']['nestable'], (array) $yourcode['active']['restricted_use']['nestable']);
 
 	$mybb->input['message'] = yourcode_police_message($all_codes, $mybb->input['message']);
 }

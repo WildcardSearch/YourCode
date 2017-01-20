@@ -314,7 +314,7 @@ EOF;
 				$active_link = $html->link($active_url, $active_text, array("title" => $lang->sprintf($lang->yourcode_message_active_status, strtolower($lang->yourcode_inactive), strtolower($active_text)), "style" => 'color: red'));
 			}
 
-			if($code->get('nestable'))
+			if($code->get('nestable') || $code->get('callback'))
 			{
 				$nested_text = "<span style=\"font-weight: bold; color: green\">{$lang->yourcode_yes}</span>";
 			}
@@ -458,6 +458,7 @@ function yourcode_admin_edit()
 	// start page output
 	$page->add_breadcrumb_item($lang->yourcode);
 	$page->add_breadcrumb_item($lang->yourcode_admin_edit);
+	$page->extra_header .= '<script type="text/javascript" src="jscripts/yourcode/yourcode_edit.js"></script>';
 	$page->output_header("{$lang->yourcode} - {$lang->yourcode_admin_edit}");
 	yourcode_output_tabs('yourcode_edit');
 
@@ -478,6 +479,10 @@ function yourcode_admin_edit()
 		{
 			$data['can_use'] = 'all';
 		}
+		if($data['callback'])
+		{
+			$data['nestable'] = 1;
+		}
 
 		$button_text = $lang->yourcode_update;
 	}
@@ -491,7 +496,8 @@ function yourcode_admin_edit()
 			"multi_line" => 0,
 			"eval" => 0,
 			"can_view" => 'all',
-			"can_use" => 'all'
+			"can_use" => 'all',
+			"callback" => 0,
 		);
 	}
 	$em = ' <em>*</em>';
@@ -515,7 +521,7 @@ function yourcode_admin_edit()
 	$form_container->output_row($lang->yourcode_regular_expression . $em, $lang->yourcode_regular_expression_desc . '<br /><strong>' . $lang->yourcode_example . '</strong> \[b\](.*?)\[/b\]', $form->generate_text_area('regex', $data['regex'], array("id" => 'regex')));
 	$form_container->output_row($lang->yourcode_replacement . $em, $lang->yourcode_replacement_desc . '<br /><strong>' . $lang->yourcode_example . '</strong> &lt;strong&gt;$1&lt;/strong&gt;', $form->generate_text_area('replacement', $data['replacement'], array("id" => 'replacement')));
 	$form_container->output_row($lang->yourcode_parse_order, $lang->yourcode_parse_order_desc, $form->generate_text_box('parse_order', $data['parse_order']));
-	$form_container->output_row($lang->yourcode_active, $lang->yourcode_active_desc, $form->generate_yes_no_radio('active', $data['active']) . $form->generate_hidden_field('id', $data['id']));
+	$form_container->output_row($lang->yourcode_active, $lang->yourcode_active_desc, $form->generate_yes_no_radio('active', $data['active']) . $form->generate_hidden_field('id', $data['id']) . $form->generate_hidden_field('default_id', $data['default_id']));
 	$form_container->end();
 
 	echo "\n</div>\n<div id=\"tab_permissions\">\n";
@@ -542,6 +548,7 @@ function yourcode_admin_edit()
 	$form_container->output_row($lang->yourcode_single_line, $lang->yourcode_single_line_desc, $form->generate_yes_no_radio('single_line', $data['single_line'], true, array("id" => 'single_line')));
 	$form_container->output_row($lang->yourcode_multi_line, $lang->yourcode_multi_line_desc, $form->generate_yes_no_radio('multi_line', $data['multi_line'], true, array("id" => 'multi_line')));
 	$form_container->output_row($lang->yourcode_eval, $lang->yourcode_eval_desc, $form->generate_yes_no_radio('eval', $data['eval'], true, array("id" => 'eval')));
+	$form_container->output_row($lang->yourcode_callback, $lang->yourcode_callback_desc, $form->generate_yes_no_radio('callback', $data['callback'], true, array("id" => 'callback')));
 	$form_container->end();
 
 	echo "\n</div>\n<div id=\"tab_sandbox\">\n";
