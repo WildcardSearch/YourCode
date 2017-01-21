@@ -48,8 +48,7 @@ function yc_footnotes_parse_message($message)
 
 	$note_num = 1;
 	$addendum = '';
-	foreach((array) $matches as $match)
-	{
+	foreach ((array) $matches as $match) {
 		$id = "footnote_{$post['pid']}_{$note_num}";
 
 		// replace the note with a link
@@ -72,8 +71,7 @@ EOF;
 		++$note_num;
 	}
 
-	if($addendum)
-	{
+	if ($addendum) {
 		$message .= <<<EOF
 <hr style="width: 25%;"/>
 <span class="smalltext" style="font-weight: bold;">Footnotes:</span>

@@ -19,8 +19,7 @@
  */
 function yourcode_build_cache($codelist = '')
 {
-	if(!is_array($codelist) || empty($codelist))
-	{
+	if (!is_array($codelist) || empty($codelist)) {
 		$codelist = yourcode_get_all();
 	}
 
@@ -38,61 +37,43 @@ function yourcode_build_cache($codelist = '')
 		"callback" => array(),
 	);
 
-	if(is_array($codelist) && !empty($codelist))
-	{
-		foreach($codelist as $code)
-		{
-			if(!$code->get('active'))
-			{
+	if (is_array($codelist) &&
+		!empty($codelist)) {
+		foreach ($codelist as $code) {
+			if (!$code->get('active')) {
 				continue;
 			}
 
 			$modifiers = '';
-			foreach(array("s" => 'single_line', "m" => 'multi_line', "e" => 'eval') as $modifier => $property)
-			{
-				if($code->get($property))
-				{
+			foreach (array("s" => 'single_line', "m" => 'multi_line', "e" => 'eval') as $modifier => $property) {
+				if ($code->get($property)) {
 					$modifiers .= $modifier;
 				}
 			}
 
-			if(!$code->get('case_sensitive'))
-			{
+			if (!$code->get('case_sensitive')) {
 				$modifiers .= 'i';
 			}
 
 			$regex = "#" . str_replace("\x0", '', $code->get('regex')) . "#{$modifiers}";
 
-			if($code->get('can_view'))
-			{
-				if($code->get('nestable'))
-				{
-					$restricted_view_code['nestable'][(int) $code->get('id')] = array("find" => $regex, "replacement" => $code->get('replacement'), "alt_replacement" => $code->get('alt_replacement'), "can_view" => $code->get('can_view'));
-				}
-				elseif($code->get('callback'))
-				{
+			if ($code->get('can_view')) {
+				if ($code->get('callback')) {
 					$restricted_view_code['callback'][(int) $code->get('id')] = array("find" => $regex, "replacement" => $code->get('replacement'), "alt_replacement" => $code->get('alt_replacement'), "can_view" => $code->get('can_view'));
-				}
-				else
-				{
+				} elseif ($code->get('nestable')) {
+					$restricted_view_code['nestable'][(int) $code->get('id')] = array("find" => $regex, "replacement" => $code->get('replacement'), "alt_replacement" => $code->get('alt_replacement'), "can_view" => $code->get('can_view'));
+				} else {
 					$restricted_view_code['standard'][(int) $code->get('id')]['find'] = $regex;
 					$restricted_view_code['standard'][(int) $code->get('id')]['replacement'] = $code->get('replacement');
 					$restricted_view_code['standard'][(int) $code->get('id')]['alt_replacement'] = $code->get('alt_replacement');
 					$restricted_view_code['standard'][(int) $code->get('id')]['can_view'] = $code->get('can_view');
 				}
-			}
-			else
-			{
-				if($code->get('nestable'))
-				{
-					$mycode_cache['nestable'][] = array('find' => $regex, 'replacement' => $code->get('replacement'));
-				}
-				elseif($code->get('callback'))
-				{
+			} else {
+				if ($code->get('callback')) {
 					$mycode_cache['callback'][] = array('find' => $regex, 'replacement' => $code->get('replacement'));
-				}
-				else
-				{
+				} elseif ($code->get('nestable')) {
+					$mycode_cache['nestable'][] = array('find' => $regex, 'replacement' => $code->get('replacement'));
+				} else {
 					$mycode_cache['standard']['find'][] = $regex;
 					$mycode_cache['standard']['replacement'][] = $code->get('replacement');
 				}
@@ -100,18 +81,12 @@ function yourcode_build_cache($codelist = '')
 
 			$regex = "#" . str_replace("\x0", '', $code->get('regex')) . "#{$modifiers}";
 
-			if($code->get('can_use'))
-			{
-				if($code->get('nestable'))
-				{
-					$restricted_use_code['nestable'][(int) $code->get('id')] = array("regex" => $regex, "can_use" => $code->get('can_use'));
-				}
-				elseif($code->get('callback'))
-				{
+			if ($code->get('can_use')) {
+				if ($code->get('callback')) {
 					$restricted_use_code['callback'][(int) $code->get('id')] = array("regex" => $regex, "can_use" => $code->get('can_use'));
-				}
-				else
-				{
+				} elseif ($code->get('nestable')) {
+					$restricted_use_code['nestable'][(int) $code->get('id')] = array("regex" => $regex, "can_use" => $code->get('can_use'));
+				} else {
 					$restricted_use_code['standard'][(int) $code->get('id')]['regex'] = $regex;
 					$restricted_use_code['standard'][(int) $code->get('id')]['can_use'] = $code->get('can_use');
 				}
@@ -150,8 +125,7 @@ function yourcode_backup()
 	$all_codes = yourcode_get_all();
 	$rows = '';
 
-	foreach($all_codes as $code)
-	{
+	foreach ($all_codes as $code) {
 		$this_row = $code->build_row();
 		$id = $code->get('id');
 		$rows .= <<<EOF
@@ -185,8 +159,7 @@ EOF;
  */
 function yourcode_import_check($xml)
 {
-	if(!$xml)
-	{
+	if (!$xml) {
 		return false;
 	}
 
@@ -195,28 +168,25 @@ function yourcode_import_check($xml)
 	$tree = $parser->get_tree();
 
 	// doing a multiple YourCode restore, fail if not multi
-	if(!is_array($tree) || !is_array($tree['yourcode']) || !is_array($tree['yourcode']['attributes']))
-	{
+	if (!is_array($tree) ||
+		!is_array($tree['yourcode']) ||
+		!is_array($tree['yourcode']['attributes'])) {
 		return false;
 	}
 
 	$return_codes = array();
-	foreach($tree['yourcode'] as $property => $this_entry)
-	{
+	foreach ($tree['yourcode'] as $property => $this_entry) {
 		// skip the info
-		if(in_array($property, array('tag', 'value', 'attributes')) ||
-		   !is_array($this_entry) ||
-		   empty($this_entry))
-		{
+		if (in_array($property, array('tag', 'value', 'attributes')) ||
+			!is_array($this_entry) ||
+			empty($this_entry)) {
 			continue;
 		}
 
 		$data = array();
-		foreach($this_entry as $key => $value)
-		{
+		foreach ($this_entry as $key => $value) {
 			// skip the info
-			if(in_array($key, array('tag', 'value')))
-			{
+			if (in_array($key, array('tag', 'value'))) {
 				continue;
 			}
 
@@ -243,20 +213,18 @@ function yourcode_check_uploaded_file($name = 'file', $return_url = '')
 {
 	global $lang;
 
-	if(!$_FILES[$name] || $_FILES[$name]['error'] == 4)
-	{
+	if (!$_FILES[$name] ||
+		$_FILES[$name]['error'] == 4) {
 		flash_message($lang->yourcode_import_no_file, 'error');
 		admin_redirect($return_url);
 	}
 
-	if($_FILES[$name]['error'])
-	{
+	if ($_FILES[$name]['error']) {
 		flash_message($lang->sprintf($lang->yourcode_import_file_error, $_FILES['file']['error']), 'error');
 		admin_redirect($return_url);
 	}
 
-	if(!is_uploaded_file($_FILES[$name]['tmp_name']))
-	{
+	if (!is_uploaded_file($_FILES[$name]['tmp_name'])) {
 		flash_message($lang->yourcode_import_file_upload_error, 'error');
 		admin_redirect($return_url);
 	}
@@ -264,8 +232,7 @@ function yourcode_check_uploaded_file($name = 'file', $return_url = '')
 	$content = @file_get_contents($_FILES[$name]['tmp_name']);
 	@unlink($_FILES[$name]['tmp_name']);
 
-	if(strlen(trim($content)) == 0)
-	{
+	if (strlen(trim($content)) == 0) {
 		flash_message($lang->yourcode_import_file_empty, 'error');
 		admin_redirect($return_url);
 	}

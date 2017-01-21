@@ -148,7 +148,7 @@ var YourCode = (function(yc) {
 		updateCheckCount();
 	}
 
-	$(document).ready(init);
+	$(init);
 
 	// the public method
 	yc.inline = {

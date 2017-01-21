@@ -11,16 +11,13 @@
  * @since     1.1
  */
 
-if(!class_exists('MalleableObject'))
-{
+if (!class_exists('MalleableObject')) {
 	require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/MalleableObject.php';
 }
-if(!class_exists('StorableObject'))
-{
+if (!class_exists('StorableObject')) {
 	require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/StorableObject.php';
 }
-if(!class_exists('PortableObject'))
-{
+if (!class_exists('PortableObject')) {
 	require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/PortableObject.php';
 }
 
@@ -120,29 +117,23 @@ class YourCode extends PortableObject
 	 */
 	public function __construct($data = '')
 	{
-		$this->table_name = 'yourcode';
+		$this->tableName = 'yourcode';
 
-		if($data)
-		{
-			if(is_array($data))
-			{
+		if ($data) {
+			if (is_array($data)) {
 				$data['regex'] = str_replace("\x0", '', $data['regex']);
 
-				if(is_array($data['can_view']))
-				{
+				if (is_array($data['can_view'])) {
 					$data['can_view'] = implode(',', $data['can_view']);
 				}
-				if(is_array($data['can_use']))
-				{
+				if (is_array($data['can_use'])) {
 					$data['can_use'] = implode(',', $data['can_use']);
 				}
 
-				if(strpos($data['can_view'], 'all') !== false)
-				{
+				if (strpos($data['can_view'], 'all') !== false) {
 					$data['can_view'] = '';
 				}
-				if(strpos($data['can_use'], 'all') !== false)
-				{
+				if (strpos($data['can_use'], 'all') !== false) {
 					$data['can_use'] = '';
 				}
 			}

@@ -14,8 +14,7 @@
  * @since     1.1
  */
 
-if(!class_exists('MalleableObject'))
-{
+if (!class_exists('MalleableObject')) {
 	require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/MalleableObject.php';
 }
 
@@ -77,8 +76,7 @@ abstract class ExternalModule extends MalleableObject implements ExternalModuleI
 	public function __construct($module)
 	{
 		// if there is data
-		if($module)
-		{
+		if ($module) {
 			// attempt to load it and return the results
 			$this->valid = $this->load($module);
 			return;
@@ -91,14 +89,14 @@ abstract class ExternalModule extends MalleableObject implements ExternalModuleI
 	 * attempt to load the module's info
 	 *
 	 * @param  string base name of the module to load
-	 *
 	 * @return bool true on success, false on fail
 	 */
 	public function load($module)
 	{
 		// good info?
-		if($module && $this->path && $this->prefix)
-		{
+		if ($module &&
+			$this->path &&
+			$this->prefix) {
 			// store the unique name
 			$this->base_name = trim($module);
 
@@ -120,16 +118,16 @@ abstract class ExternalModule extends MalleableObject implements ExternalModuleI
 	public function run($function_name, $args = '')
 	{
 		$function_name = trim($function_name);
-		if($function_name && $this->base_name && $this->path && $this->prefix)
-		{
+		if ($function_name &&
+			$this->base_name &&
+			$this->path &&
+			$this->prefix) {
 			$fullpath = "{$this->path}/{$this->base_name}.php";
-			if(file_exists($fullpath))
-			{
+			if (file_exists($fullpath)) {
 				require_once $fullpath;
 
 				$this_function = "{$this->prefix}_{$this->base_name}_{$function_name}";
-				if(function_exists($this_function))
-				{
+				if (function_exists($this_function)) {
 					return $this_function($args);
 				}
 			}
@@ -138,7 +136,7 @@ abstract class ExternalModule extends MalleableObject implements ExternalModuleI
 	}
 
 	/**
-	 * physically deletes the module from the server
+	 * physically delete the module from the server
 	 *
 	 * @return bool true on success, false on fail
 	 */

@@ -12,20 +12,16 @@
  */
 
 // disallow direct access to this file for security reasons
-if(!defined('IN_MYBB'))
-{
+if (!defined('IN_MYBB')) {
 	die('Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.');
 }
 define('YOURCODE_MOD_URL', MYBB_ROOT. 'inc/plugins/yourcode/modules');
 require_once MYBB_ROOT . 'inc/plugins/yourcode/functions.php';
 
 // load the install/admin routines only if in ACP.
-if(defined('IN_ADMINCP'))
-{
+if (defined('IN_ADMINCP')) {
     require_once MYBB_ROOT . 'inc/plugins/yourcode/acp.php';
-}
-else
-{
+} else {
 	require_once MYBB_ROOT . 'inc/plugins/yourcode/forum.php';
 }
 

@@ -11,8 +11,7 @@
  * @since     1.1
  */
 
-if(!class_exists('ExternalModule'))
-{
+if (!class_exists('ExternalModule')) {
 	require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/ExternalModule.php';
 }
 
