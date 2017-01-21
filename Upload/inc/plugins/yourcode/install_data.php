@@ -23,12 +23,14 @@ $tables = array(
 		"single_line" => 'INT(2)',
 		"multi_line" => 'INT(2)',
 		"eval" => 'INT(2)',
+		"callback" => 'INT(1)',
 		"regex" => 'TEXT',
 		"replacement" => 'TEXT',
 		"alt_replacement" => 'TEXT',
 		"can_use" => 'TEXT',
 		"can_view" => 'TEXT',
-		"dateline" => 'INT(10)'
+		"default_id" => 'INT(10)',
+		"dateline" => 'INT(10)',
 	),
 );
 

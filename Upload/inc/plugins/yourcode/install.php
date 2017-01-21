@@ -20,13 +20,11 @@ function yourcode_info()
 {
 	global $mybb, $lang, $cp_style;
 
-	if(!$lang->yourcode)
-	{
+	if (!$lang->yourcode) {
 		$lang->load('yourcode');
 	}
 
-	if(yourcode_is_installed())
-	{
+	if (yourcode_is_installed()) {
 		$extra_links = "<ul><li style=\"list-style-image: url(styles/{$cp_style}/images/yourcode/manage.gif)\"><a href=\"" . YOURCODE_URL . "\" title=\"{$lang->yourcode_admin_view}\">{$lang->yourcode_admin_view}</a></li></ul>";
 
 		$button_pic = "styles/{$cp_style}/images/yourcode/donate.gif";
@@ -49,9 +47,7 @@ function yourcode_info()
 	</tbody>
 </table>
 EOF;
-	}
-	else
-	{
+	} else {
 		$extra_links = '<br />';
 		$yourcode_description = $lang->yourcode_plugin_description;
 	}
@@ -70,7 +66,7 @@ EOF;
 		"website" => 'https://github.com/WildcardSearch/YourCode',
 		"author" => $author,
 		"authorsite" => 'http://www.rantcentralforums.com',
-		"version" => '2.0.4',
+		"version" => YOURCODE_VERSION,
 		"compatibility" => '18*',
 		"guid" => '36a18ebc285a181a42561141adfd1d7f',
 	);
@@ -95,8 +91,7 @@ function yourcode_is_installed()
  */
 function yourcode_install()
 {
-	if(!class_exists('WildcardPluginInstaller'))
-	{
+	if (!class_exists('WildcardPluginInstaller')) {
 		require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/WildcardPluginInstaller.php';
 	}
 	$installer = new WildcardPluginInstaller(MYBB_ROOT . 'inc/plugins/yourcode/install_data.php');
@@ -114,22 +109,18 @@ function yourcode_install()
 function yourcode_activate()
 {
 	$old_version = yourcode_get_cache_version();
-	$info = yourcode_info();
-	if(version_compare($old_version, $info['version'], '<'))
-	{
+	if (version_compare($old_version, YOURCODE_VERSION, '<')) {
 		$removed_files = array(
 			'standard',
 			'malleable',
 			'storable',
 			'portable',
 		);
-		foreach($removed_files as $file)
-		{
+		foreach ($removed_files as $file) {
 			@unlink(MYBB_ROOT . "inc/plugins/yourcode/classes/{$file}.php");
 		}
 		$fullpath = MYBB_ROOT . 'inc/plugins/yourcode/images';
-		if(is_dir($fullpath))
-		{
+		if (is_dir($fullpath)) {
 			@my_rmdir_recursive($fullpath);
 			@rmdir($fullpath);
 		}
@@ -163,8 +154,7 @@ function yourcode_deactivate()
  */
 function yourcode_uninstall()
 {
-	if(!class_exists('WildcardPluginInstaller'))
-	{
+	if (!class_exists('WildcardPluginInstaller')) {
 		require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/WildcardPluginInstaller.php';
 	}
 	$installer = new WildcardPluginInstaller(MYBB_ROOT . 'inc/plugins/yourcode/install_data.php');
@@ -184,8 +174,8 @@ function yourcode_get_cache_version()
 
 	// get currently installed version, if there is one
 	$yourcode = $cache->read('yourcode');
-	if(is_array($yourcode) && isset($yourcode['version']))
-	{
+	if (is_array($yourcode) &&
+		isset($yourcode['version'])) {
         return $yourcode['version'];
 	}
     return 0;
@@ -200,12 +190,9 @@ function yourcode_set_cache_version()
 {
 	global $cache;
 
-	// get version from this plugin file
-	$yourcode_info = yourcode_info();
-
 	// update version cache to latest
 	$yourcode = $cache->read('yourcode');
-	$yourcode['version'] = $yourcode_info['version'];
+	$yourcode['version'] = YOURCODE_VERSION;
 	$cache->update('yourcode', $yourcode);
 
     return true;
@@ -239,10 +226,8 @@ function yourcode_port_old_mycode()
 
 	// get the Custom MyCodes
 	$query = $db->simple_select('mycode');
-	if($db->num_rows($query) > 0)
-	{
-		while($mycode = $db->fetch_array($query))
-		{
+	if ($db->num_rows($query) > 0) {
+		while ($mycode = $db->fetch_array($query)) {
 			$mycode['regex'] = str_replace("\x0", '', $mycode['regex']);
 			$mycode['parse_order'] = $mycode['parseorder'];
 			$mycode['single_line'] = true;
@@ -254,15 +239,13 @@ function yourcode_port_old_mycode()
 	require_once MYBB_ROOT . 'inc/plugins/yourcode/definitions.php';
 	require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/YourCode.php';
 
-	foreach($all_mycode as $code)
-	{
+	foreach ($all_mycode as $code) {
 		// create and load a new object with the stored info and then save it to the db
 		$this_code = new YourCode($code);
 		$this_code->save();
 
 		// store the actives to save a query when building the cache
-		if($this_code->get('active'))
-		{
+		if ($this_code->get('active')) {
 			$active_mycode[] = $this_code;
 		}
 	}

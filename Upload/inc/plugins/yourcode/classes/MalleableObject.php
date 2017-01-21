@@ -18,7 +18,7 @@ interface MalleableObjectInterface
 {
 	public function get($properties);
 	public function set($properties, $value = '');
-	public function is_valid();
+	public function isValid();
 }
 
 /**
@@ -39,22 +39,18 @@ abstract class MalleableObject implements MalleableObjectInterface
 	 */
 	public function get($properties)
 	{
-		if(is_array($properties))
-		{
-			$return_array = array();
-			foreach($properties as $property)
-			{
-				if(property_exists($this, $property))
-				{
-					$return_array[$property] = $this->$property;
+		if (is_array($properties)) {
+			$returnArray = array();
+			foreach ($properties as $property) {
+				if (property_exists($this, $property)) {
+					$returnArray[$property] = $this->$property;
 				}
 			}
-			return $return_array;
+			return $returnArray;
 		}
 		else
 		{
-			if(property_exists($this, $properties))
-			{
+			if (property_exists($this, $properties)) {
 				return $this->$properties;
 			}
 			return false;
@@ -70,19 +66,14 @@ abstract class MalleableObject implements MalleableObjectInterface
 	 */
 	public function set($properties, $value = '')
 	{
-		if(is_array($properties))
-		{
-			foreach($properties as $property => $value)
-			{
-				if(property_exists($this, $property))
-				{
+		if (is_array($properties)) {
+			foreach ($properties as $property => $value) {
+				if (property_exists($this, $property)) {
 					$this->$property = $value;
 				}
 			}
 			return true;
-		}
-		elseif(isset($value))
-		{
+		} elseif (isset($value)) {
 			$this->$properties = $value;
 			return true;
 		}
@@ -94,7 +85,7 @@ abstract class MalleableObject implements MalleableObjectInterface
 	 *
 	 * @return bool the valid property value
 	 */
-	public function is_valid()
+	public function isValid()
 	{
 		return $this->valid;
 	}

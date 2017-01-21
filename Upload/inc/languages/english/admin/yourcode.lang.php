@@ -49,6 +49,9 @@ $l['yourcode_added'] = 'added';
 $l['yourcode_exported'] = 'exported';
 $l['yourcode_updated'] = 'updated';
 $l['yourcode_created'] = 'created';
+$l['yourcode_activated'] = 'activated';
+$l['yourcode_deleted'] = 'deleted';
+$l['yourcode_deactivated'] = 'deactivated';
 
 // acp
 $l['yourcode_admin_permissions_desc'] = 'Can use YourCode?';
@@ -99,6 +102,8 @@ $l['yourcode_multi_line'] = 'Multi-line mode?';
 $l['yourcode_multi_line_desc'] = 'In this mode, the caret (^) and dollar ($) match before and after newlines.';
 $l['yourcode_eval'] = "eval()'d?";
 $l['yourcode_eval_desc'] = "In this mode the replacement is eval()'d after it has been matched. (Set this option to 'No' unless you know what you are doing.)";
+$l['yourcode_callback'] = "Callback?";
+$l['yourcode_callback_desc'] = "In this mode the match is sent to the named PHP function";
 $l['yourcode_active'] = 'Active';
 $l['yourcode_active_desc'] = 'Should this YourCode be effective now?';
 $l['yourcode_allowed_user_groups_use'] = 'Who can use this YourCode?';
@@ -106,6 +111,8 @@ $l['yourcode_allowed_user_groups_use_desc'] = "When users that aren't allowed at
 $l['yourcode_allowed_user_groups_view'] = 'Who can view this YourCode?';
 $l['yourcode_allowed_user_groups_view_desc'] = "When users that aren't allowed view posts in which the YourCode is used an alternate replacement is used.";
 $l['yourcode_all_user_groups'] = 'All User Groups';
+$l['yourcode_save_and_continue'] = 'Save and Continue Editing';
+$l['yourcode_save_and_return'] = 'Save and Return to Listing';
 
 // tabs
 $l['yourcode_tab_general'] = 'General';
@@ -116,7 +123,9 @@ $l['yourcode_tab_sandbox'] = 'Sandbox';
 // messages
 $l['yourcode_message_success'] = '{1} {2} successfully';
 $l['yourcode_message_fail'] = "{1} couldn't be {2} successfully";
+$l['yourcode_message_fail_because'] = "{1} couldn't be {2} successfully because it was already {2}";
 $l['yourcode_message_active_status'] = 'YourCode is currently {1}, click to {2}';
+$l['yourcode_module_message_active_status'] = 'Module is currently {1}, click to {2}';
 
 // import
 $l['yourcode_import_select_file_desc'] = 'Use this form to import YourCode that was exported from this plugin.';
@@ -127,6 +136,7 @@ $l['yourcode_import_selection_error'] = 'You did not select any YourCode from th
 $l['yourcode_import_file_upload_error'] = 'There was a problem uploading the file.';
 $l['yourcode_import_file_empty'] = 'The file you uploaded is empty or currupt.';
 $l['yourcode_import_save_success'] = 'Successfully imported {1} YourCode.';
+$l['yourcode_xml_count'] = '{1} total YourCode in XML';
 
 $l['yourcode_delete_warning_clear'] = "Proceeding will result in all YourCode being deleted.\\nIt is recommended to backup first to avoid losing your work.\\nProceed?";
 $l['yourcode_delete_warning_simple'] = 'Do you want to permanently delete this YourCode?';

@@ -35,21 +35,19 @@ function yourcode_run($message)
 	}
 
 	// we have to consider several sequential iterations calling the method we have hooked into
-	if(!isset($yourcode) || !is_array($yourcode) || empty($yourcode))
-	{
+	if (!isset($yourcode) ||
+		!is_array($yourcode) ||
+		empty($yourcode)) {
 		// load the cache if this is the first run
 		global $cache;
 		$yourcode = $cache->read('yourcode');
 	}
 
-	if(is_array($yourcode['active']['restricted_view']['standard']) && !empty($yourcode['active']['restricted_view']['standard']))
-	{
-		foreach($yourcode['active']['restricted_view']['standard'] as $code)
-		{
-			if($code['can_view'])
-			{
-				if(!yourcode_check_user_permissions($code['can_view']))
-				{
+	if (is_array($yourcode['active']['restricted_view']['standard']) &&
+		!empty($yourcode['active']['restricted_view']['standard'])) {
+		foreach ($yourcode['active']['restricted_view']['standard'] as $code) {
+			if ($code['can_view']) {
+				if (!yourcode_check_user_permissions($code['can_view'])) {
 					$code['replacement'] = $code['alt_replacement'];
 				}
 			}
@@ -60,14 +58,11 @@ function yourcode_run($message)
 
 	$yourcode['active']['simple']['standard_count'] = count($yourcode['active']['simple']['standard']);
 
-	if(is_array($yourcode['active']['restricted_view']['nestable']) && !empty($yourcode['active']['restricted_view']['nestable']))
-	{
-		foreach($yourcode['active']['restricted_view']['nestable'] as $code)
-		{
-			if($code['can_view'])
-			{
-				if(!yourcode_check_user_permissions($code['can_view']))
-				{
+	if (is_array($yourcode['active']['restricted_view']['nestable']) &&
+		!empty($yourcode['active']['restricted_view']['nestable'])) {
+		foreach ($yourcode['active']['restricted_view']['nestable'] as $code) {
+			if ($code['can_view']) {
+				if (!yourcode_check_user_permissions($code['can_view'])) {
 					$code['replacement'] = $code['alt_replacement'];
 				}
 			}
@@ -76,11 +71,25 @@ function yourcode_run($message)
 	}
 
 	$yourcode['active']['simple']['nestable_count'] = count($yourcode['active']['simple']['nestable']);
+
+	if (is_array($yourcode['active']['restricted_view']['callback']) &&
+		!empty($yourcode['active']['restricted_view']['callback'])) {
+		foreach ($yourcode['active']['restricted_view']['callback'] as $code) {
+			if ($code['can_view']) {
+				if (!yourcode_check_user_permissions($code['can_view'])) {
+					$code['replacement'] = $code['alt_replacement'];
+				}
+			}
+			$yourcode['active']['simple']['callback'][] = array('find' => $code['find'], 'replacement' => $code['replacement']);
+		}
+	}
 	$yourcode['active']['simple']['callback_count'] = count($yourcode['active']['simple']['callback']);
 
-	$parser->mycode_cache = $yourcode['active']['simple'];
+	foreach ($yourcode['active']['simple']['callback'] as &$code) {
+		$code['replacement'] = array($parser, $code['replacement']);
+	}
 
-	// give back what was freely given to us
+	$parser->mycode_cache = $yourcode['active']['simple'];
 	return $message;
 }
 
@@ -96,18 +105,18 @@ function yourcode_run_modules($message)
 	static $yourcode, $all_modules;
 
 	// we have to consider several sequential iterations calling the method we have hooked into
-	if(!isset($yourcode) || !is_array($yourcode) || empty($yourcode))
-	{
+	if (!isset($yourcode) ||
+		!is_array($yourcode) ||
+		empty($yourcode)) {
 		// load the cache if this is the first run
 		global $cache;
 		$yourcode = $cache->read('yourcode');
 	}
 
 	// are there any active modules?
-	if(is_array($yourcode['active']['modules']) && !empty($yourcode['active']['modules']))
-	{
-		if(!$all_modules)
-		{
+	if (is_array($yourcode['active']['modules']) &&
+		!empty($yourcode['active']['modules'])) {
+		if (!$all_modules) {
 			// load all the active modules as an array of objects
 			require_once MYBB_ROOT . "inc/plugins/yourcode/functions.php";
 			require_once MYBB_ROOT . "inc/plugins/yourcode/classes/YourCodeModule.php";
@@ -115,10 +124,9 @@ function yourcode_run_modules($message)
 		}
 
 		// check again to be sure there were results
-		if(is_array($all_modules) && !empty($all_modules))
-		{
-			foreach($all_modules as $module)
-			{
+		if (is_array($all_modules) &&
+			!empty($all_modules)) {
+			foreach ($all_modules as $module) {
 				// then let each module have their way with the message >:D
 				$message = $module->parse_message($message);
 			}
@@ -146,7 +154,7 @@ function yourcode_datahandler_post_update($this_post)
 
 	$yourcode = $cache->read('yourcode');
 
-	$all_codes = array_merge((array) $yourcode['active']['restricted_use']['standard'], (array) $yourcode['active']['restricted_use']['nestable']);
+	$all_codes = array_merge((array) $yourcode['active']['restricted_use']['standard'], (array) $yourcode['active']['restricted_use']['nestable'], (array) $yourcode['active']['restricted_use']['callback']);
 
 	$message = yourcode_police_message($all_codes, $this_post->data['message']);
 	$posthandler->post_update_data['message'] = $db->escape_string($message);
@@ -164,7 +172,7 @@ function yourcode_newreply_do_new_start()
 	global $mybb, $cache;
 	$yourcode = $cache->read('yourcode');
 
-	$all_codes = array_merge((array) $yourcode['active']['restricted_use']['standard'], (array) $yourcode['active']['restricted_use']['nestable']);
+	$all_codes = array_merge((array) $yourcode['active']['restricted_use']['standard'], (array) $yourcode['active']['restricted_use']['nestable'], (array) $yourcode['active']['restricted_use']['nestable']);
 
 	$mybb->input['message'] = yourcode_police_message($all_codes, $mybb->input['message']);
 }
@@ -178,23 +186,19 @@ function yourcode_newreply_do_new_start()
  */
 function yourcode_police_message(array $codes, $message)
 {
-	if($message)
-	{
-		foreach($codes as $code)
-		{
-			if(!$code['can_use'] || yourcode_check_user_permissions($code['can_use']))
-			{
+	if ($message) {
+		foreach ($codes as $code) {
+			if (!$code['can_use'] ||
+				yourcode_check_user_permissions($code['can_use'])) {
 				continue;
 			}
 
 			$has_changed = true;
-			while($message && preg_match($code['regex'], $message))
-			{
+			while ($message && preg_match($code['regex'], $message)) {
 				$message = preg_replace($code['regex'], '', $message);
 			}
 
-			if(!$message)
-			{
+			if (!$message) {
 				break;
 			}
 		}
@@ -211,14 +215,12 @@ function yourcode_police_message(array $codes, $message)
 function yourcode_check_user_permissions($good_groups)
 {
 	// array-ify the list if necessary
-	if(!is_array($good_groups))
-	{
+	if (!is_array($good_groups)) {
 		$good_groups = explode(',', $good_groups);
 	}
 
 	// no groups = all groups says wildy
-	if(empty($good_groups))
-	{
+	if (empty($good_groups)) {
 		return true;
 	}
 
@@ -228,11 +230,8 @@ function yourcode_check_user_permissions($good_groups)
 	$adtl_groups = explode(',', $mybb->user['additionalgroups']);
 	array_merge($users_groups, $adtl_groups);
 
-	/* if any overlaps occur then they will be in $test_array,
-	 * empty returns true/false so !empty = true for allow and false for disallow
-	 */
-	$test_array = array_intersect($users_groups, $good_groups);
-	return !empty($test_array);
+	// !empty = true for allow and false for disallow
+	return !empty(array_intersect($users_groups, $good_groups));
 }
 
 ?>

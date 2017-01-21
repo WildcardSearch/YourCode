@@ -18,7 +18,7 @@ interface PortableObjectInterface
 {
 	public function export($options = '');
 	public function import($xml);
-	public function build_row();
+	public function buildRow();
 }
 
 /**
@@ -36,49 +36,43 @@ abstract class PortableObject extends StorableObject implements PortableObjectIn
 	 */
 	public function export($options = '')
 	{
-		if($this->table_name && $this->id)
-		{
-			$row = $this->build_row();
+		if ($this->tableName &&
+			$this->id) {
+			$row = $this->buildRow();
 			$id = (int) $this->id;
 
-			if($row)
-			{
-				$name = $this->get_clean_identifier();
-				$default_values = array
-					(
-						"charset" => 'UTF-8',
-						"version" => '1.0',
-						"website" => 'http://www.wildcardsworld.com',
-						"filename" => "{$this->table_name}_{$name}-backup.xml"
-					);
+			if ($row) {
+				$name = $this->getCleanIdentifier();
+				$defaultValues = array(
+					"charset" => 'UTF-8',
+					"version" => '1.0',
+					"website" => 'http://www.rantcentralforums.com',
+					"filename" => "{$this->tableName}_{$name}-backup.xml",
+				);
 
 				// try to get MyBB default charset
 				global $lang;
-				if(isset($lang->settings['charset']))
-				{
-					$default_values['charset'] = $lang->settings['charset'];
+				if (isset($lang->settings['charset'])) {
+					$defaultValues['charset'] = $lang->settings['charset'];
 				}
 
-				if(is_array($options) && !empty($options))
-				{
-					foreach($default_values as $key => $value)
-					{
-						if(!isset($options[$key]) || !$options[$key])
-						{
+				if (is_array($options) &&
+					!empty($options)) {
+					foreach ($defaultValues as $key => $value) {
+						if (!isset($options[$key]) ||
+							!$options[$key]) {
 							$options[$key] = $value;
 						}
 					}
-				}
-				else
-				{
-					$options = $default_values;
+				} else {
+					$options = $defaultValues;
 				}
 
 				$xml = <<<EOF
 <?xml version="1.0" encoding="{$options['charset']}"?>
-<{$this->table_name} version="{$options['version']}" xmlns="{$options['website']}">
-<{$this->table_name}_{$id}>
-{$row}	</{$this->table_name}_{$id}>
+<{$this->tableName} version="{$options['version']}" xmlns="{$options['website']}">
+<{$this->tableName}_{$id}>
+{$row}	</{$this->tableName}_{$id}>
 </{$this->table_name}>
 EOF;
 				// send out headers (opens a save dialogue)
@@ -101,31 +95,29 @@ EOF;
 	*/
 	public function import($xml)
 	{
-		if($xml)
-		{
+		if ($xml) {
 			require_once MYBB_ROOT . 'inc/class_xml.php';
 			$parser = new XMLParser($xml);
 			$tree = $parser->get_tree();
 
 			// only doing a single YourCode backup, fail if multi detected
-			if(is_array($tree) && is_array($tree[$this->table_name]) && is_array($tree[$this->table_name]['attributes']) && isset($tree[$this->table_name]['attributes']['contains']) && $tree[$this->table_name]['attributes']['contains'] == 'single')
-			{
-				foreach($tree[$this->table_name] as $property => $this_entry)
-				{
+			if (is_array($tree) &&
+				is_array($tree[$this->table_name]) &&
+				is_array($tree[$this->table_name]['attributes']) &&
+				isset($tree[$this->table_name]['attributes']['contains']) &&
+				$tree[$this->table_name]['attributes']['contains'] == 'single') {
+				foreach ($tree[$this->table_name] as $property => $this_entry) {
 					// skip the info
-					if(in_array($property, array('tag', 'value', 'attributes')))
-					{
+					if (in_array($property, array('tag', 'value', 'attributes'))) {
 						continue;
 					}
 
 					// if there is data
-					if(is_array($this_entry) && !empty($this_entry))
-					{
-						foreach($this_entry as $key => $value)
-						{
+					if (is_array($this_entry) &&
+						!empty($this_entry)) {
+						foreach ($this_entry as $key => $value) {
 							// skip the info
-							if(in_array($key, array('tag', 'value')))
-							{
+							if (in_array($key, array('tag', 'value'))) {
 								continue;
 							}
 
@@ -134,8 +126,7 @@ EOF;
 							$newkey = $key_array[0];
 
 							// is it a valid property name for this object?
-							if(property_exists($this, $newkey))
-							{
+							if (property_exists($this, $newkey)) {
 								// then store it
 								$this->$newkey = $value['value'];
 							}
@@ -152,18 +143,16 @@ EOF;
 	 *
 	 * @return string|bool the XML markup or false on fail
 	 */
-	public function build_row()
+	public function buildRow()
 	{
 		// object must have been saved (it exists in the db) in order to be exported
-		if($this->table_name && $this->id)
-		{
+		if ($this->tableName &&
+			$this->id) {
 			$row = '';
 			$id = (int) $this->id;
-			foreach($this as $property => $value)
-			{
+			foreach ($this as $property => $value) {
 				// skip inherited properties
-				if(in_array($property, array('id', 'valid', 'data', 'table_name', 'active')))
-				{
+				if (in_array($property, array('id', 'valid', 'data', 'tableName', 'active'))) {
 					continue;
 				}
 				$row .= <<<EOF
@@ -180,34 +169,30 @@ EOF;
 	 * returns the name, title or ID (first available-- in that order) to
 	 * be used as a unique identifier
 	 *
-	 * @access  private
+	 * @access private
 	 * @return string the identifier
 	 */
-	private function get_clean_identifier()
+	private function getCleanIdentifier()
 	{
-		if(property_exists($this, 'name') && trim($this->name))
-		{
+		if (property_exists($this, 'name') &&
+			trim($this->name)) {
 			$name = $this->name;
-		}
-		else if(property_exists($this, 'title') && trim($this->title))
-		{
+		} else if (property_exists($this, 'title') &&
+				   trim($this->title)) {
 			$name = $this->title;
 		}
 
 		// using a string, clean it
-		if($name)
-		{
+		if ($name) {
 			// clean and return
-			$find = array
-				(
-					"#(\s)+#s",
-					"#[^\w_]#is"
-				);
-			$replace = array
-				(
-					'_',
-					''
-				);
+			$find = array(
+				"#(\s)+#s",
+				"#[^\w_]#is"
+			);
+			$replace = array(
+				'_',
+				''
+			);
 			return preg_replace($find, $replace, strtolower(trim($name)));
 		}
 		// no name or title, return ID (all storables have an ID)

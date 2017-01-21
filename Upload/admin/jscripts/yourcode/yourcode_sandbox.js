@@ -17,8 +17,8 @@ var YourCode = (function(yc) {
 	/**
 	 * constructor
 	 *
-	 * @param  string the XMLHTTP url
-	 * @param  object the form elements
+	 * @param  string XMLHTTP url
+	 * @param  object form elements
 	 * @return void
 	 */
 	function Sandbox(url, elements) {
@@ -63,7 +63,7 @@ var YourCode = (function(yc) {
 			(this.evalInput.prop("checked") ? '&eval=1' : '');
 
 		$.jGrowl("updating...");
-		
+
 		$.ajax({
 			type: 'post',
 			url: this.url,

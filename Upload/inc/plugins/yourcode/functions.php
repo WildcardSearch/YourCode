@@ -24,15 +24,12 @@ function yourcode_get_all($start = 0, $limit = '')
 
 	$return_array = array();
 	$options = array("order_by" => 'parse_order ASC, title ASC', "limit_start" => $start);
-	if($limit)
-	{
+	if ($limit) {
 		$options['limit'] = $limit;
 	}
 	$query = $db->simple_select('yourcode', '*', '', $options);
-	if($db->num_rows($query) > 0)
-	{
-		while($this_data = $db->fetch_array($query))
-		{
+	if ($db->num_rows($query) > 0) {
+		while ($this_data = $db->fetch_array($query)) {
 			$return_array[$this_data['id']] = new YourCode($this_data);
 		}
 	}
@@ -48,13 +45,11 @@ function yourcode_get_all($start = 0, $limit = '')
 function yourcode_get_modules($actives = '')
 {
 	$modules = array();
-	foreach(new DirectoryIterator(YOURCODE_MOD_URL) as $file)
-	{
-		if(!$file->isFile() ||
+	foreach (new DirectoryIterator(YOURCODE_MOD_URL) as $file) {
+		if (!$file->isFile() ||
 		   $file->isDot() ||
 		   $file->isDir() ||
-		   pathinfo($file->getFilename(), PATHINFO_EXTENSION) != 'php')
-		{
+		   pathinfo($file->getFilename(), PATHINFO_EXTENSION) != 'php') {
 			continue;
 		}
 
@@ -62,8 +57,9 @@ function yourcode_get_modules($actives = '')
 		$filename = $file->getFilename();
 		$module = substr($filename, 0, strlen($filename) - 4);
 
-		if(is_array($actives) && !empty($actives) && !in_array($module, $actives))
-		{
+		if (is_array($actives) &&
+			!empty($actives) &&
+			!in_array($module, $actives)) {
 			continue;
 		}
 
