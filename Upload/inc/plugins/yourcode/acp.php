@@ -98,12 +98,14 @@ function yourcode_admin_view()
 
 				switch ($mybb->input['inline_action']) {
 				case 'delete':
+					$action = $lang->yourcode_deleted;
 					if (!$this_code->remove()) {
 						continue 2;
 					}
 					break;
 				default:
 					$value = ($mybb->input['inline_action'] == 'activate');
+					$action = $lang->yourcode_activated;
 
 					if (($this_code->get('active') &&
 							$value) ||
@@ -119,7 +121,6 @@ function yourcode_admin_view()
 				}
 				++$job_count;
 			}
-			$action = "{$mybb->input['inline_action']}d";
 			flash_message($lang->sprintf($lang->yourcode_inline_success, $job_count, $lang->yourcode, $action), 'success');
 			yourcode_build_cache();
 			admin_redirect($html->url(array("page" => $mybb->input['page'])));
@@ -134,7 +135,8 @@ function yourcode_admin_view()
 		}
 
 		// good info?
-		if (isset($mybb->input['id']) && (int) $mybb->input['id']) {
+		if (isset($mybb->input['id']) &&
+			(int) $mybb->input['id']) {
 			// then attempt deletion
 			$this_code = new YourCode($mybb->input['id']);
 			if ($this_code->isValid()) {
@@ -142,14 +144,13 @@ function yourcode_admin_view()
 			}
 		}
 
-		$action = "{$mybb->input['mode']}d";
 		if ($success) {
 			// yay for us
-			flash_message($lang->sprintf($lang->yourcode_message_success, $lang->yourcode, $action), 'success');
+			flash_message($lang->sprintf($lang->yourcode_message_success, $lang->yourcode, $lang->yourcode_deleted), 'success');
 			yourcode_build_cache();
 		} else {
 			// boo, we suck
-			flash_message($lang->sprintf($lang->yourcode_message_fail, $lang->yourcode, $action), 'error');
+			flash_message($lang->sprintf($lang->yourcode_message_fail, $lang->yourcode, $lang->yourcode_deleted), 'error');
 		}
 		admin_redirect($html->url(array("page" => $mybb->input['page'])));
 	} elseif (in_array($mybb->input['mode'], array('activate', 'deactivate'))) {
@@ -170,7 +171,11 @@ function yourcode_admin_view()
 			}
 		}
 
-		$action = "{$mybb->input['mode']}d";
+		$action = $lang->yourcode_activated;
+		if ($mybb->input['mode'] != 'activate') {
+			$action = $lang->yourcode_deactivated;
+		}
+
 		if ($success) {
 			// yay for us
 			flash_message($lang->sprintf($lang->yourcode_message_success, $lang->yourcode, $action), 'success');
@@ -351,12 +356,12 @@ function yourcode_admin_edit()
 
 	// adding/updating
 	if ($mybb->request_method == 'post') {
-		if (in_array($mybb->input['add_code_submit'], array('Save and Return to Listing', 'Save and Continue Editing'))) {
+		if (isset($mybb->input['add_code_submit']) ||
+			isset($mybb->input['add_code_submit_return'])) {
 			// create a new object from the passed info and save it
 			$this_code = new YourCode($mybb->input);
 			$success = $this_code->save();
 
-			// past tense is very important to me :P
 			if ($mybb->input['id']) {
 				$action = $lang->yourcode_updated;
 			} else {
@@ -368,7 +373,7 @@ function yourcode_admin_edit()
 				yourcode_build_cache();
 				flash_message($lang->sprintf($lang->yourcode_message_success, $lang->yourcode, $action), 'success');
 
-				if ($mybb->input['add_code_submit'] == 'Save and Return to Listing') {
+				if (isset($mybb->input['add_code_submit_return'])) {
 					admin_redirect($html->url());
 				} else if (!$mybb->input['id']) {
 					$mybb->input['id'] = $success;
@@ -499,14 +504,14 @@ function yourcode_admin_edit()
 
 	echo("\n</div>");
 
-	$buttons = array($form->generate_submit_button('Save and Continue Editing', array('name' => 'add_code_submit')), $form->generate_submit_button('Save and Return to Listing', array('name' => 'add_code_submit')));
+	$buttons = array($form->generate_submit_button($lang->yourcode_save_and_continue, array('name' => 'add_code_submit')), $form->generate_submit_button($lang->yourcode_save_and_return, array('name' => 'add_code_submit_return')));
 	$form->output_submit_wrapper($buttons);
 
 	// do our sandbox magic from admin/modules/config/mycode.php but use our own regex tester that supports moar cool stuff. Also had to add some options
 	echo <<<EOF
 <script type="text/javascript" src="./jscripts/yourcode/yourcode_sandbox.js"></script>
 <script type="text/javascript">
-$(document).ready(function() {
+$(function() {
 <!--
 new YourCode.Sandbox("./index.php?module=config-yourcode&action=edit&mode=xmlhttp", {
 		button: $("#test"),
@@ -581,9 +586,11 @@ function yourcode_admin_module()
 					if (!$this_module->remove()) {
 						continue 2;
 					}
+					$action = $lang->yourcode_deleted;
 					$deleted = true;
 				default:
 					if ($mybb->input['inline_action'] == 'activate') {
+						$action = $lang->yourcode_activated;
 						if (in_array($name, $activeModules)) {
 							continue 2;
 						}
@@ -591,6 +598,10 @@ function yourcode_admin_module()
 						// activate
 						$activeModules[] = $yourcode['active']['modules'][] = $name;
 					} elseif (in_array($mybb->input['inline_action'], array('deactivate', 'delete'))) {
+						if ($mybb->input['inline_action'] == 'deactivate') {
+							$action = $lang->yourcode_deactivated;
+						}
+
 						if (!in_array($name, $activeModules)) {
 							if ($deleted) {
 								continue 1;
@@ -599,19 +610,15 @@ function yourcode_admin_module()
 						}
 
 						// deactivate
-						$yourcode['active']['modules'] = $activeModules = array_filter(
-							$activeModules,
-							function($var) use($name)
-							{
-								return $var != $name;
-							}
-						);
+						$yourcode['active']['modules'] = $activeModules = array_filter($activeModules, function($var) use($name)
+						{
+							return $var != $name;
+						});
 					}
 				}
 				++$job_count;
 			}
-			$action = "{$mybb->input['inline_action']}d";
-			flash_message($lang->sprintf($lang->yourcode_inline_success, $job_count, $lang->yourcode_modules, $action), 'success');
+			flash_message($lang->sprintf($lang->yourcode_inline_success, $job_count, $lang->yourcode_modules, $action), $job_count > 0 ? 'success' : 'error');
 			$cache->update('yourcode', $yourcode);
 			admin_redirect($redirect);
 		}
@@ -640,11 +647,11 @@ function yourcode_admin_module()
 				});
 			}
 			// yay for us
-			flash_message($lang->sprintf($lang->yourcode_message_success, $lang->yourcode_modules, 'deleted'), 'success');
+			flash_message($lang->sprintf($lang->yourcode_message_success, $lang->yourcode_modules, $lang->yourcode_deleted), 'success');
 			$cache->update('yourcode', $yourcode);
 		} else {
 			// boo, we suck
-			flash_message($lang->sprintf($lang->yourcode_message_fail, $lang->yourcode_modules, 'deleted'), 'error');
+			flash_message($lang->sprintf($lang->yourcode_message_fail, $lang->yourcode_modules, $lang->yourcode_deleted), 'error');
 		}
 		admin_redirect($html->url(array("action" => 'module')));
 	} elseif (in_array($mybb->input['mode'], array('activate', 'deactivate'))) {
@@ -677,8 +684,10 @@ function yourcode_admin_module()
 			admin_redirect($html->url(array("action" => 'module')));
 		}
 
-		// the tense is past
-		$action = "{$mybb->input['mode']}d";
+		$action = $lang->yourcode_activated;
+		if ($mybb->input['mode'] == 'deactivate') {
+			$action = $lang->yourcode_deactivated;
+		}
 
 		// only update cache if changes were made
 		if ($has_changed) {
@@ -687,7 +696,7 @@ function yourcode_admin_module()
 			flash_message($lang->sprintf($lang->yourcode_message_success, $lang->yourcode_modules, $action), 'success');
 		} else {
 			// be sad and verbose simultaneously
-			flash_message($lang->sprintf($lang->yourcode_message_fail . ' because it was already ' . $action, $lang->yourcode_modules, $action), 'error');
+			flash_message($lang->sprintf($lang->yourcode_message_fail_because, $lang->yourcode_modules, $action), 'error');
 		}
 		admin_redirect($html->url(array("action" => 'module')));
 	}
@@ -765,13 +774,13 @@ EOF;
 			$name = $module->get('base_name');
 			$isActive = in_array($name, $activeModules);
 			if ($isActive) {
-				$activeText = 'Deactivate';
+				$activeText = $lang->yourcode_deactivate;
 				$activeUrl = $html->url(array("action" => 'module', "mode" => 'deactivate', "page" => $mybb->input['page'], "name" => $name, "my_post_key" => $mybb->post_code));
-				$activeLink = $html->link($activeUrl, $activeText, array("title" => 'This YourCode Module is currently active, click to deactivate', "style" => 'color: green'));
+				$activeLink = $html->link($activeUrl, $activeText, array("title" => $lang->sprintf($lang->yourcode_module_message_active_status, strtolower($lang->yourcode_active), strtolower($activeText)), "style" => 'color: green'));
 			} else {
-				$activeText = 'Activate';
+				$activeText = $lang->yourcode_activate;
 				$activeUrl = $html->url(array("action" => 'module', "mode" => 'activate', "page" => $mybb->input['page'], "name" => $name, "my_post_key" => $mybb->post_code));
-				$activeLink = $html->link($activeUrl, $activeText, array("title" => 'This YourCode Module is currently inactive, click to activate', "style" => 'color: red'));
+				$activeLink = $html->link($activeUrl, $activeText, array("title" => $lang->sprintf($lang->yourcode_module_message_active_status, strtolower($lang->yourcode_inactive), strtolower($activeText)), "style" => 'color: red'));
 			}
 
 			$table->construct_cell($title, array("style" => 'font-weight: bold;'));
@@ -918,7 +927,7 @@ function yourcode_admin_import()
 	yourcode_output_tabs('yourcode_import');
 
 	if ($mybb->request_method == 'post') {
-		if ($mybb->input['import'] == $lang->yourcode_cancel) {
+		if (isset($mybb->input['import_cancel'])) {
 			admin_redirect($html->url(array("action" => 'tools')));
 		}
 
@@ -1015,7 +1024,7 @@ EOF;
 					$form_container->construct_row();
 				}
 				// then pad the left side of the hidden row
-				$form_container->output_cell("<span style=\"font-weight: bold; font-size: 1.2em; color: blue;\">{$total} total YourCode in XML</span>");
+				$form_container->output_cell("<span style=\"font-weight: bold; font-size: 1.2em; color: blue;\">{$lang->sprintf($lang->yourcode_xml_count, $total)}</span>");
 				$form_container->output_cell('&nbsp;');
 				$form_container->output_cell('&nbsp;');
 			}
@@ -1028,7 +1037,7 @@ EOF;
 			$form_container->end();
 			$buttons = array();
 			$buttons[] = $form->generate_submit_button($lang->yourcode_import, array("onclick" => $onSubmit, "name" => 'import'));
-			$buttons[] = $form->generate_submit_button($lang->yourcode_cancel, array("name" => 'import'));
+			$buttons[] = $form->generate_submit_button($lang->yourcode_cancel, array("name" => 'import_cancel'));
 			$form->output_submit_wrapper($buttons);
 			$form->end();
 		}
