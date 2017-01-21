@@ -1,7 +1,7 @@
 <?php
 /**
  * definitions for the MyCode conversion done at install
- * 
+ *
  * @category  MyBB Plugins
  * @package   YourCode
  * @author    Mark Vincent <admin@rantcentralforums.com>
@@ -24,7 +24,7 @@ $all_mycode = array(
 		"multi_line" => false,
 		"eval" => false,
 		"regex" => "\[b\](.*?)\[/b\]",
-		"replacement" => '<span style="font-weight: bold;">$1</span>',
+		"replacement" => '<span style="font-weight: bold;" class="mycode_b">$1</span>',
 		"default_id" => 1,
 	),
 	array(
@@ -38,7 +38,7 @@ $all_mycode = array(
 		"multi_line" => false,
 		"eval" => false,
 		"regex" => "\[u\](.*?)\[/u\]",
-		"replacement" => '<span style="text-decoration: underline;">$1</span>',
+		"replacement" => '<span style="text-decoration: underline;" class="mycode_u">$1</span>',
 		"default_id" => 2,
 	),
 	array(
@@ -52,7 +52,7 @@ $all_mycode = array(
 		"multi_line" => false,
 		"eval" => false,
 		"regex" => "\[i\](.*?)\[/i\]",
-		"replacement" => '<span style="font-style: italic;">$1</span>',
+		"replacement" => '<span style="font-style: italic;" class="mycode_i">$1</span>',
 		"default_id" => 3,
 	),
 	array(
@@ -66,7 +66,7 @@ $all_mycode = array(
 		"multi_line" => false,
 		"eval" => false,
 		"regex" => "\[s\](.*?)\[/s\]",
-		"replacement" => '<del>$1</del>',
+		"replacement" => '<span style="text-decoration: line-through;" class="mycode_s">$1</span>',
 		"default_id" => 4,
 	),
 	array(
@@ -122,7 +122,7 @@ $all_mycode = array(
 		"multi_line" => false,
 		"eval" => false,
 		"callback" => true,
-		"regex" => "\[url\]([a-z]+?://)([^\r\n\"<]+?)\[/url\]",
+		"regex" => "\[url\]((?!javascript)[a-z]+?://)([^\r\n\"<]+?)\[/url\]",
 		"replacement" => 'mycode_parse_url_callback1',
 		"default_id" => 8,
 	),
@@ -137,7 +137,7 @@ $all_mycode = array(
 		"multi_line" => false,
 		"eval" => false,
 		"callback" => true,
-		"regex" => "\[url\]([^\r\n\"<]+?)\[/url\]",
+		"regex" => "\[url\]((?!javascript:)[^\r\n\"<]+?)\[/url\]",
 		"replacement" => 'mycode_parse_url_callback2',
 		"default_id" => 9,
 	),
@@ -152,7 +152,7 @@ $all_mycode = array(
 		"multi_line" => false,
 		"eval" => false,
 		"callback" => true,
-		"regex" => "\[url=([a-z]+?://)([^\r\n\"<]+?)\](.+?)\[/url\]",
+		"regex" => "\[url=((?!javascript)[a-z]+?://)([^\r\n\"<]+?)\](.+?)\[/url\]",
 		"replacement" => 'mycode_parse_url_callback1',
 		"default_id" => 10,
 	),
@@ -167,7 +167,7 @@ $all_mycode = array(
 		"multi_line" => false,
 		"eval" => false,
 		"callback" => true,
-		"regex" => "\[url=([^\r\n\"<]+?)\](.+?)\[/url\]",
+		"regex" => "\[url=((?!javascript:)[^\r\n\"<]+?)\](.+?)\[/url\]",
 		"replacement" => 'mycode_parse_url_callback2',
 		"default_id" => 11,
 	),
@@ -212,7 +212,7 @@ $all_mycode = array(
 		"multi_line" => false,
 		"eval" => false,
 		"regex" => "\[hr\]",
-		"replacement" => '<hr />',
+		"replacement" => '<hr class="mycode_hr" />',
 		"default_id" => 14,
 	),
 	array(
@@ -225,8 +225,8 @@ $all_mycode = array(
 		"single_line" => true,
 		"multi_line" => false,
 		"eval" => false,
-		"regex" => "\[color=([a-zA-Z]*|\#?[0-9a-fA-F]{6})](.*?)\[/color\]",
-		"replacement" => '<span style="color: $1;">$2</span>',
+		"regex" => "\[color=([a-zA-Z]*|\#?[\da-fA-F]{3}|\#?[\da-fA-F]{6})](.*?)\[/color\]",
+		"replacement" => '<span style="color: $1;" class="mycode_color">$2</span>',
 		"default_id" => 15,
 	),
 	array(
@@ -240,7 +240,7 @@ $all_mycode = array(
 		"multi_line" => false,
 		"eval" => false,
 		"regex" => "\[size=(xx-small|x-small|small|medium|large|x-large|xx-large)\](.*?)\[/size\]",
-		"replacement" => '<span style="font-size: $1;">$2</span>',
+		"replacement" => '<span style="font-size: $1;" class="mycode_size">$2</span>',
 		"default_id" => 16,
 	),
 	array(
@@ -268,7 +268,7 @@ $all_mycode = array(
 		"single_line" => true,
 		"multi_line" => false,
 		"eval" => false,
-		"regex" => "\[font=([a-z ]+?)\](.+?)\[/font\]",
+		"regex" => "\[font=([a-z0-9 ,\-_'\"]+)\](.*?)\[/font\]",
 		"replacement" => '<span style="font-family: $1;">$2</span>',
 		"default_id" => 18,
 	),
@@ -283,7 +283,7 @@ $all_mycode = array(
 		"multi_line" => false,
 		"eval" => false,
 		"regex" => "\[align=(left|center|right|justify)\](.*?)\[/align\]",
-		"replacement" => '<div style="text-align: $1;">$2</div>',
+		"replacement" => '<div style="text-align: $1;" class="mycode_align">$2</div>',
 		"default_id" => 20,
 	),
 );
