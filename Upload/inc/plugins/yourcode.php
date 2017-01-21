@@ -15,7 +15,9 @@
 if (!defined('IN_MYBB')) {
 	die('Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.');
 }
+
 define('YOURCODE_MOD_URL', MYBB_ROOT. 'inc/plugins/yourcode/modules');
+define('YOURCODE_VERSION', '2.1');
 require_once MYBB_ROOT . 'inc/plugins/yourcode/functions.php';
 
 // load the install/admin routines only if in ACP.

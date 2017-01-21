@@ -66,7 +66,7 @@ EOF;
 		"website" => 'https://github.com/WildcardSearch/YourCode',
 		"author" => $author,
 		"authorsite" => 'http://www.rantcentralforums.com',
-		"version" => '2.0.4',
+		"version" => YOURCODE_VERSION,
 		"compatibility" => '18*',
 		"guid" => '36a18ebc285a181a42561141adfd1d7f',
 	);
@@ -109,8 +109,7 @@ function yourcode_install()
 function yourcode_activate()
 {
 	$old_version = yourcode_get_cache_version();
-	$info = yourcode_info();
-	if (version_compare($old_version, $info['version'], '<')) {
+	if (version_compare($old_version, YOURCODE_VERSION, '<')) {
 		$removed_files = array(
 			'standard',
 			'malleable',
@@ -191,12 +190,9 @@ function yourcode_set_cache_version()
 {
 	global $cache;
 
-	// get version from this plugin file
-	$yourcode_info = yourcode_info();
-
 	// update version cache to latest
 	$yourcode = $cache->read('yourcode');
-	$yourcode['version'] = $yourcode_info['version'];
+	$yourcode['version'] = YOURCODE_VERSION;
 	$cache->update('yourcode', $yourcode);
 
     return true;
