@@ -68,7 +68,7 @@ EOF;
 		"authorsite" => 'http://www.rantcentralforums.com',
 		"version" => YOURCODE_VERSION,
 		"compatibility" => '18*',
-		"guid" => '36a18ebc285a181a42561141adfd1d7f',
+		"codename" => 'yourcode',
 	);
 }
 
