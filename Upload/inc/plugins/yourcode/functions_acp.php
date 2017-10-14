@@ -126,7 +126,7 @@ function yourcode_backup()
 	$rows = '';
 
 	foreach ($all_codes as $code) {
-		$this_row = $code->build_row();
+		$this_row = $code->buildRow();
 		$id = $code->get('id');
 		$rows .= <<<EOF
 <yourcode_{$id}>
