@@ -11,14 +11,25 @@
  * @since     1.1
  */
 
-if (!class_exists('MalleableObject')) {
-	require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/MalleableObject.php';
+if (!interface_exists('MalleableObjectInterface010000')) {
+	require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/MalleableObjectInterface010000.php';
 }
-if (!class_exists('StorableObject')) {
-	require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/StorableObject.php';
+if (!class_exists('MalleableObject010000')) {
+	require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/MalleableObject010000.php';
 }
-if (!class_exists('PortableObject')) {
-	require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/PortableObject.php';
+
+if (!interface_exists('StorableObjectInterface010000')) {
+	require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/StorableObjectInterface010000.php';
+}
+if (!class_exists('StorableObject010000')) {
+	require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/StorableObject010000.php';
+}
+
+if (!interface_exists('PortableObjectInterface010000')) {
+	require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/PortableObjectInterface010000.php';
+}
+if (!class_exists('PortableObject010000')) {
+	require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/PortableObject010000.php';
 }
 
 /**
@@ -28,8 +39,13 @@ if (!class_exists('PortableObject')) {
  * for db functions and a PortableObject for import/export with properties
  * for YourCodes
  */
-class YourCode extends PortableObject
+class YourCode extends PortableObject010000
 {
+	/**
+	 * @var string
+	 */
+	protected $tableName = 'yourcode';
+		
 	/**
 	 * @var string the title
 	 */
@@ -117,28 +133,47 @@ class YourCode extends PortableObject
 	 */
 	public function __construct($data = '')
 	{
-		$this->tableName = 'yourcode';
-
-		if ($data) {
-			if (is_array($data)) {
-				$data['regex'] = str_replace("\x0", '', $data['regex']);
-
-				if (is_array($data['can_view'])) {
-					$data['can_view'] = implode(',', $data['can_view']);
-				}
-				if (is_array($data['can_use'])) {
-					$data['can_use'] = implode(',', $data['can_use']);
-				}
-
-				if (strpos($data['can_view'], 'all') !== false) {
-					$data['can_view'] = '';
-				}
-				if (strpos($data['can_use'], 'all') !== false) {
-					$data['can_use'] = '';
-				}
-			}
-			parent::__construct($data);
+		if (!$data) {
+			return;
 		}
+
+		if (is_array($data)) {
+			$data['regex'] = str_replace("\x0", '', $data['regex']);
+
+			if (is_array($data['can_view'])) {
+				$data['can_view'] = implode(',', $data['can_view']);
+			}
+			if (is_array($data['can_use'])) {
+				$data['can_use'] = implode(',', $data['can_use']);
+			}
+
+			if (strpos($data['can_view'], 'all') !== false) {
+				$data['can_view'] = '';
+			}
+			if (strpos($data['can_use'], 'all') !== false) {
+				$data['can_use'] = '';
+			}
+		}
+		parent::__construct($data);
+	}
+
+	/**
+	 * process the XML
+	 *
+	 * @param  string
+	 * @return array|bool
+	 */
+	protected function getTree($xml)
+	{
+		$tree = parent::getTree($xml);
+		if (!is_array($tree) ||
+			!is_array($tree[$this->table_name]) ||
+			!is_array($tree[$this->table_name]['attributes']) ||
+			!isset($tree[$this->table_name]['attributes']['contains']) ||
+			$tree[$this->table_name]['attributes']['contains'] != 'single') {
+			return false;
+		}
+		return $tree;
 	}
 }
 

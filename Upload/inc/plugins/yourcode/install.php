@@ -91,11 +91,16 @@ function yourcode_is_installed()
  */
 function yourcode_install()
 {
-	if (!class_exists('WildcardPluginInstaller')) {
-		require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/WildcardPluginInstaller.php';
+	if (!interface_exists('WildcardPluginInstallerInterface010000')) {
+		require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/WildcardPluginInstallerInterface010000.php';
 	}
-	$installer = new WildcardPluginInstaller(MYBB_ROOT . 'inc/plugins/yourcode/install_data.php');
-	$installer->install();
+	if (!class_exists('WildcardPluginInstaller010202')) {
+		require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/WildcardPluginInstaller010202.php';
+	}
+	if (!class_exists('YourCodeInstaller')) {
+		require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/YourCodeInstaller.php';
+	}
+	YourCodeInstaller::getInstance()->install();
 
 	// store all the internal MyCodes that are normally cached and also the default Custom MyCodes as new, moar betterer YourCodes :)
 	yourcode_port_old_mycode();
@@ -108,21 +113,39 @@ function yourcode_install()
  */
 function yourcode_activate()
 {
-	$old_version = yourcode_get_cache_version();
-	if (version_compare($old_version, YOURCODE_VERSION, '<')) {
-		$removed_files = array(
-			'standard',
-			'malleable',
-			'storable',
-			'portable',
-		);
-		foreach ($removed_files as $file) {
-			@unlink(MYBB_ROOT . "inc/plugins/yourcode/classes/{$file}.php");
+	$oldVersion = yourcode_get_cache_version();
+	if (version_compare($oldVersion, YOURCODE_VERSION, '<')) {
+		if (version_compare($oldVersion, '1.1', '<')) {
+			$removedFiles = array(
+				'inc/plugins/yourcode/classes/standard.php',
+				'inc/plugins/yourcode/classes/malleable.php',
+				'inc/plugins/yourcode/classes/storable.php',
+				'inc/plugins/yourcode/classes/portable.php',
+			);
+
+			$removedFolders = array('inc/plugins/yourcode/images');
 		}
-		$fullpath = MYBB_ROOT . 'inc/plugins/yourcode/images';
-		if (is_dir($fullpath)) {
-			@my_rmdir_recursive($fullpath);
-			@rmdir($fullpath);
+
+		if (version_compare($oldVersion, '2.1.1', '<')) {
+			$removedFiles = array_merge($removedFiles, array(
+				'inc/plugins/yourcode/classes/MalleableObject.php',
+				'inc/plugins/yourcode/classes/StorableObject.php',
+				'inc/plugins/yourcode/classes/PortableObject.php',
+				'inc/plugins/yourcode/classes/WildcardPluginInstaller.php',
+				'inc/plugins/yourcode/classes/ExternalModule.php',
+			));
+		}
+
+		foreach ($removedFiles as $file) {
+			@unlink(MYBB_ROOT . "inc/plugins/yourcode/classes/{$file}");
+		}
+
+		foreach ($removedFolders as $folder) {
+			$fullpath = MYBB_ROOT . $folder;
+			if (is_dir($fullpath)) {
+				@my_rmdir_recursive($fullpath);
+				@rmdir($fullpath);
+			}
 		}
 	}
 	yourcode_set_cache_version();
@@ -154,11 +177,16 @@ function yourcode_deactivate()
  */
 function yourcode_uninstall()
 {
-	if (!class_exists('WildcardPluginInstaller')) {
-		require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/WildcardPluginInstaller.php';
+	if (!interface_exists('WildcardPluginInstallerInterface010000')) {
+		require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/WildcardPluginInstallerInterface010000.php';
 	}
-	$installer = new WildcardPluginInstaller(MYBB_ROOT . 'inc/plugins/yourcode/install_data.php');
-	$installer->uninstall();
+	if (!class_exists('WildcardPluginInstaller010202')) {
+		require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/WildcardPluginInstaller010202.php';
+	}
+	if (!class_exists('YourCodeInstaller')) {
+		require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/YourCodeInstaller.php';
+	}
+	YourCodeInstaller::getInstance()->uninstall();
 
 	yourcode_unset_cache();
 }
