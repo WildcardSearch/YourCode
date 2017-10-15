@@ -91,15 +91,6 @@ function yourcode_is_installed()
  */
 function yourcode_install()
 {
-	if (!interface_exists('WildcardPluginInstallerInterface010000')) {
-		require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/WildcardPluginInstallerInterface010000.php';
-	}
-	if (!class_exists('WildcardPluginInstaller010202')) {
-		require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/WildcardPluginInstaller010202.php';
-	}
-	if (!class_exists('YourCodeInstaller')) {
-		require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/YourCodeInstaller.php';
-	}
 	YourCodeInstaller::getInstance()->install();
 
 	// store all the internal MyCodes that are normally cached and also the default Custom MyCodes as new, moar betterer YourCodes :)
@@ -155,7 +146,6 @@ function yourcode_activate()
 
 	// rebuild the cache just in case admin has upgraded to fix this error:
 	// https://github.com/WildcardSearch/YourCode/issues/4
-	require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/YourCode.php';
 	yourcode_build_cache();
 }
 
@@ -177,15 +167,6 @@ function yourcode_deactivate()
  */
 function yourcode_uninstall()
 {
-	if (!interface_exists('WildcardPluginInstallerInterface010000')) {
-		require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/WildcardPluginInstallerInterface010000.php';
-	}
-	if (!class_exists('WildcardPluginInstaller010202')) {
-		require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/WildcardPluginInstaller010202.php';
-	}
-	if (!class_exists('YourCodeInstaller')) {
-		require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/YourCodeInstaller.php';
-	}
 	YourCodeInstaller::getInstance()->uninstall();
 
 	yourcode_unset_cache();
@@ -265,7 +246,6 @@ function yourcode_port_old_mycode()
 
 	// get the internal MyCode definitions and the YourCode tools
 	require_once MYBB_ROOT . 'inc/plugins/yourcode/definitions.php';
-	require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/YourCode.php';
 
 	foreach ($all_mycode as $code) {
 		// create and load a new object with the stored info and then save it to the db

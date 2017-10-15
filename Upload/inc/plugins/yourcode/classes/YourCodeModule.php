@@ -11,19 +11,6 @@
  * @since     1.1
  */
 
-if (!interface_exists('MalleableObjectInterface010000')) {
-	require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/MalleableObjectInterface010000.php';
-}
-if (!class_exists('MalleableObject010000')) {
-	require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/MalleableObject010000.php';
-}
-if (!interface_exists('ExternalModuleInterface010000')) {
-	require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/ExternalModuleInterface010000.php';
-}
-if (!class_exists('ExternalModule010000')) {
-	require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/ExternalModule010000.php';
-}
-
 /**
  * YourCode module class
  *

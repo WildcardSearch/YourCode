@@ -119,7 +119,6 @@ function yourcode_run_modules($message)
 		if (!$all_modules) {
 			// load all the active modules as an array of objects
 			require_once MYBB_ROOT . "inc/plugins/yourcode/functions.php";
-			require_once MYBB_ROOT . "inc/plugins/yourcode/classes/YourCodeModule.php";
 			$all_modules = yourcode_get_modules($yourcode['active']['modules']);
 		}
 

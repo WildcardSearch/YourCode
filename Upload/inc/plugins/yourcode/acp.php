@@ -38,9 +38,6 @@ function yourcode_admin()
 
 	// no need for all the classes and functions if it is just AJAX test
 	if ($mybb->input['mode'] != 'xmlhttp') {
-		require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/YourCode.php';
-		require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/HTMLGenerator.php';
-
 		// URL, link and image markup generator
 		$html = new HTMLGenerator(YOURCODE_URL, array('script', 'style', 'type', 'name'));
 
@@ -545,8 +542,6 @@ EOF;
 function yourcode_admin_module()
 {
 	global $page, $mybb, $lang, $db, $cache, $html;
-
-	require_once MYBB_ROOT . "inc/plugins/yourcode/classes/YourCodeModule.php";
 
 	// load our cache right away
 	$yourcode = $cache->read('yourcode');

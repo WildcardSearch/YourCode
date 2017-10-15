@@ -11,27 +11,6 @@
  * @since     1.1
  */
 
-if (!interface_exists('MalleableObjectInterface010000')) {
-	require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/MalleableObjectInterface010000.php';
-}
-if (!class_exists('MalleableObject010000')) {
-	require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/MalleableObject010000.php';
-}
-
-if (!interface_exists('StorableObjectInterface010000')) {
-	require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/StorableObjectInterface010000.php';
-}
-if (!class_exists('StorableObject010000')) {
-	require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/StorableObject010000.php';
-}
-
-if (!interface_exists('PortableObjectInterface010000')) {
-	require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/PortableObjectInterface010000.php';
-}
-if (!class_exists('PortableObject010000')) {
-	require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/PortableObject010000.php';
-}
-
 /**
  * the YourCode database object wrapper
  *
