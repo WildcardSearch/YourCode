@@ -12,8 +12,9 @@
  */
 interface ExternalModuleInterface010000
 {
-	public function load($name);
+	public function load($module);
 	public function run($function_name, $args = '');
+	public function remove();
 }
 
 ?>

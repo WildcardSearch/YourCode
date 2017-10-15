@@ -766,7 +766,7 @@ EOF;
 			}
 
 			$title = "{$module->get('title')} ({$module->get('version')})";
-			$name = $module->get('base_name');
+			$name = $module->get('baseName');
 			$isActive = in_array($name, $activeModules);
 			if ($isActive) {
 				$activeText = $lang->yourcode_deactivate;

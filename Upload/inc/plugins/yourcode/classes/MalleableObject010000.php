@@ -42,8 +42,8 @@ abstract class MalleableObject010000 implements MalleableObjectInterface010000
 	 * sets a single property or multiple properties at once
 	 *
 	 * @param  array|string
-	 * @param  mixed the property value
-	 * @return bool success/fail
+	 * @param  mixed
+	 * @return bool
 	 */
 	public function set($properties, $value = '')
 	{

@@ -140,11 +140,11 @@ abstract class StorableObject010000 extends MalleableObject010000 implements Sto
 	/**
 	 * remove the object from the database
 	 *
+	 * @param  bool for extension to allow silent removal
 	 * @return mixed|bool return of db wrapper or false
 	 */
 	public function remove($noCleanup = false)
 	{
-		// valid ID and DB info?
 		if (!$this->id ||
 			!$this->tableName) {
 			return false;

@@ -38,7 +38,7 @@ abstract class ExternalModule010000 extends MalleableObject010000 implements Ext
 	/**
 	 * @var the internal module name
 	 */
-	protected $base_name = '';
+	protected $baseName = '';
 
 	/**
 	 * attempt to load and validate the module
@@ -67,7 +67,7 @@ abstract class ExternalModule010000 extends MalleableObject010000 implements Ext
 		}
 
 		// store the unique name
-		$this->base_name = trim($module);
+		$this->baseName = trim($module);
 
 		// store the info
 		$info = $this->run('info');
@@ -85,19 +85,19 @@ abstract class ExternalModule010000 extends MalleableObject010000 implements Ext
 	{
 		$function_name = trim($function_name);
 		if (!$function_name ||
-			!$this->base_name ||
+			!$this->baseName ||
 			!$this->path ||
 			!$this->prefix) {
 			return false;
 		}
 
-		$fullpath = "{$this->path}/{$this->base_name}.php";
+		$fullpath = "{$this->path}/{$this->baseName}.php";
 		if (!file_exists($fullpath)) {
 			return false;
 		}
 		require_once $fullpath;
 
-		$this_function = "{$this->prefix}_{$this->base_name}_{$function_name}";
+		$this_function = "{$this->prefix}_{$this->baseName}_{$function_name}";
 		if (!function_exists($this_function)) {
 			return false;
 		}
@@ -111,7 +111,7 @@ abstract class ExternalModule010000 extends MalleableObject010000 implements Ext
 	 */
 	public function remove()
 	{
-		$filename = "{$this->path}/{$this->base_name}.php";
+		$filename = "{$this->path}/{$this->baseName}.php";
 		@unlink($filename);
 
 		return !file_exists($filename);
