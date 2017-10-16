@@ -20,6 +20,19 @@
 	 */
 	function init() {
 		$("#callback").change(callbackChange);
+		$("#yourcodeForm").validate({
+			rules: {
+				title: "required",
+				regex: "required",
+			},
+			errorPlacement: function(error, element) {
+				error.css({
+					color: "red",
+					paddingLeft: "5px",
+				});
+				error.insertAfter(element);
+			},
+		});
 	}
 
 	/**

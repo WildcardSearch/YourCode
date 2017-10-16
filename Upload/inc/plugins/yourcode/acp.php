@@ -404,7 +404,11 @@ function yourcode_admin_edit()
 	// start page output
 	$page->add_breadcrumb_item($lang->yourcode);
 	$page->add_breadcrumb_item($lang->yourcode_admin_edit);
-	$page->extra_header .= '<script type="text/javascript" src="jscripts/yourcode/yourcode_edit.js"></script>';
+	$page->extra_header .= <<<EOF
+	<script type="text/javascript" src="{$mybb->asset_url}/jscripts/validate/jquery.validate.min.js?ver=1804"></script>
+	<script type="text/javascript" src="jscripts/yourcode/yourcode_edit.js"></script>
+
+EOF;
 	$page->output_header("{$lang->yourcode} - {$lang->yourcode_admin_edit}");
 	yourcode_output_tabs('yourcode_edit');
 
@@ -443,7 +447,7 @@ function yourcode_admin_edit()
 	$em = ' <em>*</em>';
 
 	// hmm could this be the form?
-	$form = new Form($html->url(array("action" => 'edit')), 'post');
+	$form = new Form($html->url(array("action" => 'edit')), 'post', 'yourcodeForm');
 
 	$tabs = array(
 		"general" => $lang->yourcode_tab_general,
