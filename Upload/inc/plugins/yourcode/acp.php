@@ -102,7 +102,7 @@ function yourcode_admin_view()
 					break;
 				default:
 					$value = ($mybb->input['inline_action'] == 'activate');
-					$action = $lang->yourcode_activated;
+					$action = $value ? $lang->yourcode_activated : $lang->yourcode_deactivated;
 
 					if (($this_code->get('active') &&
 							$value) ||
