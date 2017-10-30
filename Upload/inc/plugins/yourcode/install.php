@@ -18,14 +18,32 @@
  */
 function yourcode_info()
 {
-	global $mybb, $lang, $cp_style;
+	global $mybb, $lang, $cp_style, $cache;
 
 	if (!$lang->yourcode) {
 		$lang->load('yourcode');
 	}
 
-	if (yourcode_is_installed()) {
-		$extra_links = "<ul><li style=\"list-style-image: url(styles/{$cp_style}/images/yourcode/manage.gif)\"><a href=\"" . YOURCODE_URL . "\" title=\"{$lang->yourcode_admin_view}\">{$lang->yourcode_admin_view}</a></li></ul>";
+	$settings_link = yourcode_build_settings_link();
+	if ($settings_link) {
+		$settings_link = <<<EOF
+	<li style="list-style-image: url(styles/{$cp_style}/images/yourcode/settings.png)">
+		{$settings_link}
+	</li>
+EOF;
+
+		$url = YOURCODE_URL;
+		$plugin_list = $cache->read('plugins');
+		$manage_link = '';
+		if (!empty($plugin_list['active']) &&
+			is_array($plugin_list['active']) &&
+			in_array('yourcode', $plugin_list['active'])) {
+			$manage_link = <<<EOF
+	<li style="list-style-image: url(styles/{$cp_style}/images/yourcode/manage.gif)">
+		<a href="{$url}" title="{$lang->yourcode_admin_view}">{$lang->yourcode_admin_view}</a>
+	</li>
+EOF;
+		}
 
 		$button_pic = "styles/{$cp_style}/images/yourcode/donate.gif";
 		$border_pic = "styles/{$cp_style}/images/yourcode/pixel.gif";
@@ -33,9 +51,14 @@ function yourcode_info()
 <table width="100%">
 	<tbody>
 		<tr>
-			<td>{$lang->yourcode_plugin_description}<br/>{$extra_links}
+			<td>{$lang->yourcode_plugin_description}<br/>
+				<ul>
+					{$settings_link}
+					{$manage_link}
+				</ul>
 			</td>
 			<td style="text-align: center;">
+				<img src="styles/{$cp_style}/images/yourcode/logo.png" alt="{$lang->yourcode_logo}" title="{$lang->yourcode_logo}"/><br /><br />
 				<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
 					<input type="hidden" name="cmd" value="_s-xclick">
 					<input type="hidden" name="hosted_button_id" value="VA5RFLBUC4XM4">
@@ -350,6 +373,67 @@ function yourcodeIsWritable($rootFolder)
 		}
 	}
 	return true;
+}
+
+/*
+ * settings
+ */
+
+/**
+ * retrieves the plugin's settings group gid if it exists
+ * attempts to cache repeat calls
+ *
+ * @return int gid
+ */
+function yourcode_get_settingsgroup()
+{
+	static $gid;
+
+	if (!isset($gid)) {
+		global $db;
+		$query = $db->simple_select('settinggroups', 'gid', "name='yourcode_settings'");
+		$gid = (int) $db->fetch_field($query, 'gid');
+	}
+	return $gid;
+}
+
+/**
+ * builds the url to modify plugin settings if given valid info
+ *
+ * @param  int settings group id
+ * @return string url
+ */
+function yourcode_build_settings_url($gid)
+{
+	if (!$gid) {
+		return;
+	}
+	return 'index.php?module=config-settings&amp;action=change&amp;gid=' . $gid;
+}
+
+/**
+ * builds a link to modify plugin settings if it exists
+ *
+ * @return string html
+ */
+function yourcode_build_settings_link()
+{
+	global $lang;
+	if (!$lang->yourcode) {
+		$lang->load('yourcode');
+	}
+
+	$gid = yourcode_get_settingsgroup();
+	if (!$gid) {
+		return false;
+	}
+
+	$url = yourcode_build_settings_url($gid);
+	if (!$url) {
+		return;
+	}
+
+	return "<a href=\"{$url}\" title=\"{$lang->yourcode_plugin_settings}\">{$lang->yourcode_plugin_settings}</a>";
 }
 
 ?>
