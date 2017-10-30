@@ -17,7 +17,7 @@ if (!defined('IN_MYBB')) {
 }
 
 define('YOURCODE_MOD_URL', MYBB_ROOT. 'inc/plugins/yourcode/modules');
-define('YOURCODE_VERSION', '2.1');
+define('YOURCODE_VERSION', '2.1.1');
 
 // register custom class autoloader
 spl_autoload_register('yourCodeClassAutoLoad');
