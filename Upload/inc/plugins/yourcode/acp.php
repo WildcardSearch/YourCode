@@ -31,18 +31,19 @@ function yourcode_admin()
 	}
 
 	// now load up, this is our time
-	global $mybb, $lang, $html;
+	global $mybb, $lang, $html, $min;
 	if (!$lang->yourcode) {
 		$lang->load('yourcode');
 	}
 
+	if ($mybb->settings['yourcode_minimize_js']) {
+		$min = '.min';
+	}
+
 	// no need for all the classes and functions if it is just AJAX test
 	if ($mybb->input['mode'] != 'xmlhttp') {
-		require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/YourCode.php';
-		require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/HTMLGenerator.php';
-
 		// URL, link and image markup generator
-		$html = new HTMLGenerator(YOURCODE_URL, array('script', 'style', 'type', 'name'));
+		$html = new HTMLGenerator010000(YOURCODE_URL, array('script', 'style', 'type', 'name'));
 
 		$page->extra_header .= <<<EOF
 
@@ -73,7 +74,7 @@ EOF;
  */
 function yourcode_admin_view()
 {
-	global $page, $mybb, $lang, $db, $html;
+	global $page, $mybb, $lang, $db, $html, $min;
 
 	if ($mybb->request_method == 'post') {
 		if ($mybb->input['mode'] == 'inline') {
@@ -105,7 +106,7 @@ function yourcode_admin_view()
 					break;
 				default:
 					$value = ($mybb->input['inline_action'] == 'activate');
-					$action = $lang->yourcode_activated;
+					$action = $value ? $lang->yourcode_activated : $lang->yourcode_deactivated;
 
 					if (($this_code->get('active') &&
 							$value) ||
@@ -207,7 +208,7 @@ function yourcode_admin_view()
 
 	$page->extra_header .= <<<EOF
 
-	<script type="text/javascript" src="jscripts/yourcode/yourcode_inline.js"></script>
+	<script type="text/javascript" src="jscripts/yourcode/yourcode_inline{$min}.js"></script>
 	<script type="text/javascript">
 	<!--
 	YourCode.inline.setup({
@@ -346,7 +347,7 @@ EOF;
  */
 function yourcode_admin_edit()
 {
-	global $page, $mybb, $lang, $db, $html;
+	global $page, $mybb, $lang, $db, $html, $min;
 
 	// verify incoming POST request
 	if (!verify_post_check($mybb->input['my_post_key'])) {
@@ -407,7 +408,11 @@ function yourcode_admin_edit()
 	// start page output
 	$page->add_breadcrumb_item($lang->yourcode);
 	$page->add_breadcrumb_item($lang->yourcode_admin_edit);
-	$page->extra_header .= '<script type="text/javascript" src="jscripts/yourcode/yourcode_edit.js"></script>';
+	$page->extra_header .= <<<EOF
+	<script type="text/javascript" src="{$mybb->asset_url}/jscripts/validate/jquery.validate.min.js?ver=1804"></script>
+<script type="text/javascript" src="jscripts/yourcode/yourcode_edit{$min}.js"></script>
+
+EOF;
 	$page->output_header("{$lang->yourcode} - {$lang->yourcode_admin_edit}");
 	yourcode_output_tabs('yourcode_edit');
 
@@ -446,7 +451,7 @@ function yourcode_admin_edit()
 	$em = ' <em>*</em>';
 
 	// hmm could this be the form?
-	$form = new Form($html->url(array("action" => 'edit')), 'post');
+	$form = new Form($html->url(array("action" => 'edit')), 'post', 'yourcodeForm');
 
 	$tabs = array(
 		"general" => $lang->yourcode_tab_general,
@@ -509,7 +514,7 @@ function yourcode_admin_edit()
 
 	// do our sandbox magic from admin/modules/config/mycode.php but use our own regex tester that supports moar cool stuff. Also had to add some options
 	echo <<<EOF
-<script type="text/javascript" src="./jscripts/yourcode/yourcode_sandbox.js"></script>
+<script type="text/javascript" src="./jscripts/yourcode/yourcode_sandbox{$min}.js"></script>
 <script type="text/javascript">
 $(function() {
 <!--
@@ -545,8 +550,6 @@ EOF;
 function yourcode_admin_module()
 {
 	global $page, $mybb, $lang, $db, $cache, $html;
-
-	require_once MYBB_ROOT . "inc/plugins/yourcode/classes/YourCodeModule.php";
 
 	// load our cache right away
 	$yourcode = $cache->read('yourcode');
@@ -706,7 +709,7 @@ function yourcode_admin_module()
 	$page->add_breadcrumb_item($lang->yourcode_admin_module);
 	$page->extra_header .= <<<EOF
 
-	<script type="text/javascript" src="jscripts/yourcode/yourcode_inline.js"></script>
+	<script type="text/javascript" src="jscripts/yourcode/yourcode_inline{$min}.js"></script>
 	<script type="text/javascript">
 	<!--
 	YourCode.inline.setup({
@@ -771,7 +774,7 @@ EOF;
 			}
 
 			$title = "{$module->get('title')} ({$module->get('version')})";
-			$name = $module->get('base_name');
+			$name = $module->get('baseName');
 			$isActive = in_array($name, $activeModules);
 			if ($isActive) {
 				$activeText = $lang->yourcode_deactivate;

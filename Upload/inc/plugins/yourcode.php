@@ -17,7 +17,11 @@ if (!defined('IN_MYBB')) {
 }
 
 define('YOURCODE_MOD_URL', MYBB_ROOT. 'inc/plugins/yourcode/modules');
-define('YOURCODE_VERSION', '2.1');
+define('YOURCODE_VERSION', '2.1.1');
+
+// register custom class autoloader
+spl_autoload_register('yourCodeClassAutoLoad');
+
 require_once MYBB_ROOT . 'inc/plugins/yourcode/functions.php';
 
 // load the install/admin routines only if in ACP.
@@ -25,6 +29,19 @@ if (defined('IN_ADMINCP')) {
     require_once MYBB_ROOT . 'inc/plugins/yourcode/acp.php';
 } else {
 	require_once MYBB_ROOT . 'inc/plugins/yourcode/forum.php';
+}
+
+ /**
+  * class autoloader
+  *
+  * @param string the name of the class to load
+  */
+function yourCodeClassAutoLoad($className) {
+	$path = MYBB_ROOT . "inc/plugins/yourcode/classes/{$className}.php";
+
+	if (file_exists($path)) {
+		require_once $path;
+	}
 }
 
 ?>

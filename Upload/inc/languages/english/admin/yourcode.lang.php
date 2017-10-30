@@ -13,6 +13,7 @@
 
 $l['yourcode'] = 'YourCode';
 $l['yourcode_plugin_description'] = "Forget MyCode. Take control of YourCode's more powerful way to manage custom BB codes and even the internally cached MyCodes.";
+$l['yourcode_logo'] = 'YourCode Logo';
 
 // general
 $l['yourcode_yes'] = 'Yes';
@@ -170,5 +171,18 @@ $l['yourcode_inline_selection_error'] = 'You did not select anything.';
 $l['yourcode_inline_success'] = '{1} {2} successfully {3}';
 $l['yourcode_invalid_module'] = 'Invalid module';
 $l['yourcode_no_modules'] = 'no modules';
+
+// plugin requirements
+$l['yourcode_folders_requirement_warning'] = 'One or more folders are not writable. These folders need to be writable during installation and upgrades for themeable items to be upgraded on a per-theme basis.<br /><strong>Folder(s):</strong><br />';
+$l['yourcode_subfolders_unwritable'] = 'One or more subfolders in <span style="font-family: Courier New; font-weight: bolder; font-size: small; color: black;">{1}</span>';
+$l['yourcode_cannot_be_installed'] = 'YourCode cannot be installed!';
+
+// settings
+$l['yourcode_plugin_settings'] = 'Plugin Settings';
+$l['yourcode_settings_title'] = 'YourCode Settings';
+$l['yourcode_settingsgroup_description'] = 'further customize the plugin';
+
+$l['yourcode_minimize_js_title'] = 'Minimize JavaScript?';
+$l['yourcode_minimize_js_description'] = 'YES (default) to serve client-side scripts minified to increase performance, NO to serve beautiful, commented code ;)';
 
 ?>

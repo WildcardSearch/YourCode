@@ -18,14 +18,32 @@
  */
 function yourcode_info()
 {
-	global $mybb, $lang, $cp_style;
+	global $mybb, $lang, $cp_style, $cache;
 
 	if (!$lang->yourcode) {
 		$lang->load('yourcode');
 	}
 
-	if (yourcode_is_installed()) {
-		$extra_links = "<ul><li style=\"list-style-image: url(styles/{$cp_style}/images/yourcode/manage.gif)\"><a href=\"" . YOURCODE_URL . "\" title=\"{$lang->yourcode_admin_view}\">{$lang->yourcode_admin_view}</a></li></ul>";
+	$settings_link = yourcode_build_settings_link();
+	if ($settings_link) {
+		$settings_link = <<<EOF
+	<li style="list-style-image: url(styles/{$cp_style}/images/yourcode/settings.png)">
+		{$settings_link}
+	</li>
+EOF;
+
+		$url = YOURCODE_URL;
+		$plugin_list = $cache->read('plugins');
+		$manage_link = '';
+		if (!empty($plugin_list['active']) &&
+			is_array($plugin_list['active']) &&
+			in_array('yourcode', $plugin_list['active'])) {
+			$manage_link = <<<EOF
+	<li style="list-style-image: url(styles/{$cp_style}/images/yourcode/manage.gif)">
+		<a href="{$url}" title="{$lang->yourcode_admin_view}">{$lang->yourcode_admin_view}</a>
+	</li>
+EOF;
+		}
 
 		$button_pic = "styles/{$cp_style}/images/yourcode/donate.gif";
 		$border_pic = "styles/{$cp_style}/images/yourcode/pixel.gif";
@@ -33,9 +51,14 @@ function yourcode_info()
 <table width="100%">
 	<tbody>
 		<tr>
-			<td>{$lang->yourcode_plugin_description}<br/>{$extra_links}
+			<td>{$lang->yourcode_plugin_description}<br/>
+				<ul>
+					{$settings_link}
+					{$manage_link}
+				</ul>
 			</td>
 			<td style="text-align: center;">
+				<img src="styles/{$cp_style}/images/yourcode/logo.png" alt="{$lang->yourcode_logo}" title="{$lang->yourcode_logo}"/><br /><br />
 				<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
 					<input type="hidden" name="cmd" value="_s-xclick">
 					<input type="hidden" name="hosted_button_id" value="VA5RFLBUC4XM4">
@@ -51,6 +74,8 @@ EOF;
 		$extra_links = '<br />';
 		$yourcode_description = $lang->yourcode_plugin_description;
 	}
+
+	$yourcode_description .= yourcodeCheckRequirements();
 
 	$name = <<<EOF
 <span style="font-familiy: arial; font-size: 1.5em; color: #BB0000; text-shadow: 2px 2px 2px #880000;">{$lang->yourcode}</span>
@@ -68,7 +93,7 @@ EOF;
 		"authorsite" => 'http://www.rantcentralforums.com',
 		"version" => YOURCODE_VERSION,
 		"compatibility" => '18*',
-		"guid" => '36a18ebc285a181a42561141adfd1d7f',
+		"codename" => 'yourcode',
 	);
 }
 
@@ -91,11 +116,19 @@ function yourcode_is_installed()
  */
 function yourcode_install()
 {
-	if (!class_exists('WildcardPluginInstaller')) {
-		require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/WildcardPluginInstaller.php';
+	global $lang;
+
+	if (!$lang->yourcode) {
+		$lang->load('yourcode');
 	}
-	$installer = new WildcardPluginInstaller(MYBB_ROOT . 'inc/plugins/yourcode/install_data.php');
-	$installer->install();
+
+	$req = yourcodeCheckRequirements(true);
+	if ($req) {
+		flash_message("{$lang->yourcode_cannot_be_installed}<br /><br />{$req}", 'error');
+		admin_redirect('index.php?module=config-plugins');
+	}
+
+	YourCodeInstaller::getInstance()->install();
 
 	// store all the internal MyCodes that are normally cached and also the default Custom MyCodes as new, moar betterer YourCodes :)
 	yourcode_port_old_mycode();
@@ -108,21 +141,40 @@ function yourcode_install()
  */
 function yourcode_activate()
 {
-	$old_version = yourcode_get_cache_version();
-	if (version_compare($old_version, YOURCODE_VERSION, '<')) {
-		$removed_files = array(
-			'standard',
-			'malleable',
-			'storable',
-			'portable',
-		);
-		foreach ($removed_files as $file) {
-			@unlink(MYBB_ROOT . "inc/plugins/yourcode/classes/{$file}.php");
+	$oldVersion = yourcode_get_cache_version();
+	if (version_compare($oldVersion, YOURCODE_VERSION, '<')) {
+		if (version_compare($oldVersion, '1.1', '<')) {
+			$removedFiles = array(
+				'inc/plugins/yourcode/classes/standard.php',
+				'inc/plugins/yourcode/classes/malleable.php',
+				'inc/plugins/yourcode/classes/storable.php',
+				'inc/plugins/yourcode/classes/portable.php',
+			);
+
+			$removedFolders = array('inc/plugins/yourcode/images');
 		}
-		$fullpath = MYBB_ROOT . 'inc/plugins/yourcode/images';
-		if (is_dir($fullpath)) {
-			@my_rmdir_recursive($fullpath);
-			@rmdir($fullpath);
+
+		if (version_compare($oldVersion, '2.1.1', '<')) {
+			$removedFiles = array_merge($removedFiles, array(
+				'inc/plugins/yourcode/classes/MalleableObject.php',
+				'inc/plugins/yourcode/classes/StorableObject.php',
+				'inc/plugins/yourcode/classes/PortableObject.php',
+				'inc/plugins/yourcode/classes/WildcardPluginInstaller.php',
+				'inc/plugins/yourcode/classes/ExternalModule.php',
+				'inc/plugins/yourcode/classes/HTMLGenerator.php',
+			));
+		}
+
+		foreach ($removedFiles as $file) {
+			@unlink(MYBB_ROOT . "inc/plugins/yourcode/classes/{$file}");
+		}
+
+		foreach ($removedFolders as $folder) {
+			$fullpath = MYBB_ROOT . $folder;
+			if (is_dir($fullpath)) {
+				@my_rmdir_recursive($fullpath);
+				@rmdir($fullpath);
+			}
 		}
 	}
 	yourcode_set_cache_version();
@@ -132,7 +184,6 @@ function yourcode_activate()
 
 	// rebuild the cache just in case admin has upgraded to fix this error:
 	// https://github.com/WildcardSearch/YourCode/issues/4
-	require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/YourCode.php';
 	yourcode_build_cache();
 }
 
@@ -154,11 +205,7 @@ function yourcode_deactivate()
  */
 function yourcode_uninstall()
 {
-	if (!class_exists('WildcardPluginInstaller')) {
-		require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/WildcardPluginInstaller.php';
-	}
-	$installer = new WildcardPluginInstaller(MYBB_ROOT . 'inc/plugins/yourcode/install_data.php');
-	$installer->uninstall();
+	YourCodeInstaller::getInstance()->uninstall();
 
 	yourcode_unset_cache();
 }
@@ -237,7 +284,6 @@ function yourcode_port_old_mycode()
 
 	// get the internal MyCode definitions and the YourCode tools
 	require_once MYBB_ROOT . 'inc/plugins/yourcode/definitions.php';
-	require_once MYBB_ROOT . 'inc/plugins/yourcode/classes/YourCode.php';
 
 	foreach ($all_mycode as $code) {
 		// create and load a new object with the stored info and then save it to the db
@@ -253,6 +299,141 @@ function yourcode_port_old_mycode()
 	// store the info in our cache entry just as MyBB stores internally cached MyCode
 	yourcode_build_cache($active_mycode);
 	return true;
+}
+
+/**
+ * check plugin requirements and display warnings as appropriate
+ *
+ * @return string warning text
+ */
+function yourcodeCheckRequirements($deep = false)
+{
+	global $lang;
+
+	$adminStatus = is_writable(MYBB_ADMIN_DIR . 'styles/');
+	$forumStatus = is_writable(MYBB_ROOT . 'images/');
+	if ($deep !== true &&
+		$adminStatus &&
+		$forumStatus) {
+		return;
+	}
+
+	$issues = '';
+	if (!$adminStatus) {
+		$issues .= '<br /><span style="font-family: Courier New; font-weight: bolder; font-size: small;">' . MYBB_ADMIN_DIR . 'styles/</span>';
+	}
+
+	if (!$forumStatus) {
+		$issues .= '<br /><span style="font-family: Courier New; font-weight: bolder; font-size: small; color: black;">' . MYBB_ROOT . 'images/</span>';
+	}
+
+	if ($deep) {
+		$adminSubStatus = yourcodeIsWritable(MYBB_ADMIN_DIR . 'styles/');
+		$forumSubStatus = yourcodeIsWritable(MYBB_ROOT . 'images/');
+
+		if ($adminStatus &&
+			$forumStatus &&
+			$adminSubStatus &&
+			$forumSubStatus) {
+			return;
+		}
+
+		if (!$adminSubStatus) {
+			$issues .= "<br /><span>{$lang->sprintf($lang->yourcode_subfolders_unwritable, MYBB_ADMIN_DIR . 'styles/</span>')}";
+		}
+
+		if (!$forumSubStatus) {
+			$issues .= "<br /><span>{$lang->sprintf($lang->yourcode_subfolders_unwritable, MYBB_ROOT . 'images/</span>')}";
+		}
+		return "{$lang->yourcode_folders_requirement_warning}<br />{$issues}";
+	}
+
+	return <<<EOF
+<br /><br /><div style="border: 1px solid darkred; color: darkred; background: pink;">{$lang->yourcode_folders_requirement_warning}{$issues}</div>
+EOF;
+}
+
+/**
+ * recursively check unwritable folders in the given root
+ *
+ * @return bool
+ */
+function yourcodeIsWritable($rootFolder)
+{
+	foreach (new DirectoryIterator($rootFolder) as $folder) {
+		if (!$folder->isDir() ||
+			$folder->isFile() ||
+			$folder->isDot()) {
+			continue;
+		}
+
+		if (!is_writeable($rootFolder . $folder . "/") ||
+			!yourcodeIsWritable($rootFolder . $folder . "/")) {
+			return false;
+		}
+	}
+	return true;
+}
+
+/*
+ * settings
+ */
+
+/**
+ * retrieves the plugin's settings group gid if it exists
+ * attempts to cache repeat calls
+ *
+ * @return int gid
+ */
+function yourcode_get_settingsgroup()
+{
+	static $gid;
+
+	if (!isset($gid)) {
+		global $db;
+		$query = $db->simple_select('settinggroups', 'gid', "name='yourcode_settings'");
+		$gid = (int) $db->fetch_field($query, 'gid');
+	}
+	return $gid;
+}
+
+/**
+ * builds the url to modify plugin settings if given valid info
+ *
+ * @param  int settings group id
+ * @return string url
+ */
+function yourcode_build_settings_url($gid)
+{
+	if (!$gid) {
+		return;
+	}
+	return 'index.php?module=config-settings&amp;action=change&amp;gid=' . $gid;
+}
+
+/**
+ * builds a link to modify plugin settings if it exists
+ *
+ * @return string html
+ */
+function yourcode_build_settings_link()
+{
+	global $lang;
+	if (!$lang->yourcode) {
+		$lang->load('yourcode');
+	}
+
+	$gid = yourcode_get_settingsgroup();
+	if (!$gid) {
+		return false;
+	}
+
+	$url = yourcode_build_settings_url($gid);
+	if (!$url) {
+		return;
+	}
+
+	return "<a href=\"{$url}\" title=\"{$lang->yourcode_plugin_settings}\">{$lang->yourcode_plugin_settings}</a>";
 }
 
 ?>
