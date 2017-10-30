@@ -124,6 +124,7 @@ function yourcode_activate()
 				'inc/plugins/yourcode/classes/PortableObject.php',
 				'inc/plugins/yourcode/classes/WildcardPluginInstaller.php',
 				'inc/plugins/yourcode/classes/ExternalModule.php',
+				'inc/plugins/yourcode/classes/HTMLGenerator.php',
 			));
 		}
 

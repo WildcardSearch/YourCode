@@ -39,7 +39,7 @@ function yourcode_admin()
 	// no need for all the classes and functions if it is just AJAX test
 	if ($mybb->input['mode'] != 'xmlhttp') {
 		// URL, link and image markup generator
-		$html = new HTMLGenerator(YOURCODE_URL, array('script', 'style', 'type', 'name'));
+		$html = new HTMLGenerator010000(YOURCODE_URL, array('script', 'style', 'type', 'name'));
 
 		$page->extra_header .= <<<EOF
 
