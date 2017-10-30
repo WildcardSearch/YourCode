@@ -171,4 +171,8 @@ $l['yourcode_inline_success'] = '{1} {2} successfully {3}';
 $l['yourcode_invalid_module'] = 'Invalid module';
 $l['yourcode_no_modules'] = 'no modules';
 
+$l['yourcode_folders_requirement_warning'] = 'One or more folders are not writable. These folders need to be writable during installation and upgrades for themeable items to be upgraded on a per-theme basis.<br /><strong>Folder(s):</strong><br />';
+$l['yourcode_subfolders_unwritable'] = 'One or more subfolders in <span style="font-family: Courier New; font-weight: bolder; font-size: small; color: black;">{1}</span>';
+$l['yourcode_cannot_be_installed'] = 'YourCode cannot be installed!';
+
 ?>

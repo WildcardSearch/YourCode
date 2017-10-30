@@ -52,6 +52,8 @@ EOF;
 		$yourcode_description = $lang->yourcode_plugin_description;
 	}
 
+	$yourcode_description .= yourcodeCheckRequirements();
+
 	$name = <<<EOF
 <span style="font-familiy: arial; font-size: 1.5em; color: #BB0000; text-shadow: 2px 2px 2px #880000;">{$lang->yourcode}</span>
 EOF;
@@ -91,6 +93,18 @@ function yourcode_is_installed()
  */
 function yourcode_install()
 {
+	global $lang;
+
+	if (!$lang->yourcode) {
+		$lang->load('yourcode');
+	}
+
+	$req = yourcodeCheckRequirements(true);
+	if ($req) {
+		flash_message("{$lang->yourcode_cannot_be_installed}<br /><br />{$req}", 'error');
+		admin_redirect('index.php?module=config-plugins');
+	}
+
 	YourCodeInstaller::getInstance()->install();
 
 	// store all the internal MyCodes that are normally cached and also the default Custom MyCodes as new, moar betterer YourCodes :)
@@ -261,6 +275,80 @@ function yourcode_port_old_mycode()
 
 	// store the info in our cache entry just as MyBB stores internally cached MyCode
 	yourcode_build_cache($active_mycode);
+	return true;
+}
+
+/**
+ * check plugin requirements and display warnings as appropriate
+ *
+ * @return string warning text
+ */
+function yourcodeCheckRequirements($deep = false)
+{
+	global $lang;
+
+	$adminStatus = is_writable(MYBB_ADMIN_DIR . 'styles/');
+	$forumStatus = is_writable(MYBB_ROOT . 'images/');
+	if ($deep !== true &&
+		$adminStatus &&
+		$forumStatus) {
+		return;
+	}
+
+	$issues = '';
+	if (!$adminStatus) {
+		$issues .= '<br /><span style="font-family: Courier New; font-weight: bolder; font-size: small;">' . MYBB_ADMIN_DIR . 'styles/</span>';
+	}
+
+	if (!$forumStatus) {
+		$issues .= '<br /><span style="font-family: Courier New; font-weight: bolder; font-size: small; color: black;">' . MYBB_ROOT . 'images/</span>';
+	}
+
+	if ($deep) {
+		$adminSubStatus = yourcodeIsWritable(MYBB_ADMIN_DIR . 'styles/');
+		$forumSubStatus = yourcodeIsWritable(MYBB_ROOT . 'images/');
+
+		if ($adminStatus &&
+			$forumStatus &&
+			$adminSubStatus &&
+			$forumSubStatus) {
+			return;
+		}
+
+		if (!$adminSubStatus) {
+			$issues .= "<br /><span>{$lang->sprintf($lang->yourcode_subfolders_unwritable, MYBB_ADMIN_DIR . 'styles/</span>')}";
+		}
+
+		if (!$forumSubStatus) {
+			$issues .= "<br /><span>{$lang->sprintf($lang->yourcode_subfolders_unwritable, MYBB_ROOT . 'images/</span>')}";
+		}
+		return "{$lang->yourcode_folders_requirement_warning}<br />{$issues}";
+	}
+
+	return <<<EOF
+<br /><br /><div style="border: 1px solid darkred; color: darkred; background: pink;">{$lang->yourcode_folders_requirement_warning}{$issues}</div>
+EOF;
+}
+
+/**
+ * recursively check unwritable folders in the given root
+ *
+ * @return bool
+ */
+function yourcodeIsWritable($rootFolder)
+{
+	foreach (new DirectoryIterator($rootFolder) as $folder) {
+		if (!$folder->isDir() ||
+			$folder->isFile() ||
+			$folder->isDot()) {
+			continue;
+		}
+
+		if (!is_writeable($rootFolder . $folder . "/") ||
+			!yourcodeIsWritable($rootFolder . $folder . "/")) {
+			return false;
+		}
+	}
 	return true;
 }
 
