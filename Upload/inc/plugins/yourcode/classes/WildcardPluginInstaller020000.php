@@ -9,12 +9,12 @@
  *
  */
 
-class WildcardPluginInstaller010202 implements WildcardPluginInstallerInterface010000
+class WildcardPluginInstaller020000 implements WildcardPluginInstallerInterface010000
 {
 	/**
 	 * @const version
 	 */
-	const VERSION = '1.2.2';
+	const VERSION = '2.0.0';
 
 	/**
 	 * @var object a copy of the MyBB db object
@@ -92,20 +92,31 @@ class WildcardPluginInstaller010202 implements WildcardPluginInstallerInterface0
 	protected $images = array();
 
 	/**
-	 * load the installation data and prepare for anything
+	 * load the installation data
 	 *
 	 * @param  string path to the install data
 	 * @return void
 	 */
-	public function __construct($path = '')
+	public function __construct($path='')
 	{
 		if (!trim($path) ||
 			!file_exists($path)) {
 			return;
 		}
 
+		/**
+		 * Check every possible element that the installer can handle and,
+		 * if the elements exist, store their definition data along with
+		 * a list of the names associated with each component, eg. the name
+		 * of a setting.
+		 *
+		 * This gives the installer all of the information it needs to install
+		 * and uninstall the plugin.
+		 */
 		global $lang, $db;
+
 		require_once $path;
+
 		foreach (array('tables', 'columns', 'settings', 'templates', 'images', 'styleSheets') as $key) {
 			if (!is_array($$key) ||
 				empty($$key)) {
@@ -113,46 +124,59 @@ class WildcardPluginInstaller010202 implements WildcardPluginInstallerInterface0
 			}
 
 			$this->$key = $$key;
-			switch ($key) {
-			case 'styleSheets':
-				foreach (array('acp', 'forum') as $key) {
-					if (!is_array($styleSheets[$key]) ||
-						empty($styleSheets[$key])) {
-						$this->styleSheetNames[$key] = array();
-						continue;
-					}
+		}
 
-					foreach (array_keys($styleSheets[$key]) as $name) {
-						// stylesheets need the extension appended
-						$this->styleSheetNames[$key][] = $name . '.css';
-					}
+		if (!empty($styleSheets)) {
+			foreach (array('acp', 'forum') as $key) {
+				if (!is_array($styleSheets[$key]) ||
+					empty($styleSheets[$key])) {
+					$this->styleSheetNames[$key] = array();
+					continue;
 				}
-				break;
-			case 'settings':
-				$this->settingGroupNames = array_keys($settings);
-				foreach ($settings as $group => $info) {
-					foreach ($info['settings'] as $name => $setting) {
-						$this->settingNames[] = $name;
-					}
+
+				foreach (array_keys($styleSheets[$key]) as $name) {
+					// stylesheets need the extension appended
+					$this->styleSheetNames[$key][] = $name . '.css';
 				}
-				break;
-			case 'templates':
-				$this->templategroupNames = array_keys($templates);
-				foreach ($templates as $group => $info) {
-					foreach ($info['templates'] as $name => $template) {
-						$this->templateNames[] = $name;
-					}
-				}
-				break;
-			case 'columns':
-			case 'images':
-				break;
-			default:
-				$singular = substr($key, 0, strlen($key) - 1);
-				$property = "{$singular}Names";
-				$this->$property = array_keys($$key);
-				break;
 			}
+		}
+
+		// settings and templates and their groups are handled similarly
+		if (!empty($settings)) {
+			$this->settingGroupNames = array_keys($settings);
+			foreach ($settings as $group => $info) {
+				foreach ($info['settings'] as $name => $setting) {
+					$this->settingNames[] = $name;
+				}
+			}
+		}
+
+		if (!empty($templates)) {
+			$this->templategroupNames = array_keys($templates);
+			foreach ($templates as $group => $info) {
+				foreach ($info['templates'] as $name => $template) {
+					$this->templateNames[] = $name;
+				}
+			}
+		}
+
+		// tables and columns must consider the different db engines
+		if (!empty($tables)) {
+			if ($db->engine == 'pgsql') {
+				$this->tables = $tables['pgsql'];
+			} else {
+				unset($this->tables['pgsql']);
+			}
+			$this->tableNames = array_keys($tables);
+		}
+
+		if (!empty($columns)) {
+			if ($db->engine == 'pgsql') {
+				$this->columns = $columns['pgsql'];
+			} else {
+				unset($this->columns['pgsql']);
+			}
+			$this->columnNames = array_keys($columns);
 		}
 
 		// snag a copy of the db object
@@ -216,8 +240,8 @@ class WildcardPluginInstaller010202 implements WildcardPluginInstallerInterface0
 
 		// create the table if it doesn't already exist
 		if (!$this->tableExists($table)) {
-			$table =  TABLE_PREFIX . $table;
-			$this->db->write_query("CREATE TABLE {$table} ({$columnList}) ENGINE={$this->db->table_type}{$collation};");
+			$queryExtra = ($this->db->engine == 'pgsql') ? '' : " ENGINE={$this->db->table_type}{$collation}";
+			$this->db->write_query("CREATE TABLE {$this->db->table_prefix}{$table} ({$columnList}){$queryExtra};");
 		}
 	}
 
@@ -256,8 +280,9 @@ class WildcardPluginInstaller010202 implements WildcardPluginInstallerInterface0
 			return;
 		}
 
-		$dropList = implode(', ' . TABLE_PREFIX, $this->tableNames);
-		$this->db->drop_table($dropList);
+		foreach ($this->tableNames as $table) {
+			$this->db->drop_table($table);
+		}
 	}
 
 	/**
@@ -266,7 +291,7 @@ class WildcardPluginInstaller010202 implements WildcardPluginInstallerInterface0
 	 * @param  array tables and columns
 	 * @return void
 	 */
-	protected function addColumns($columns = '')
+	protected function addColumns($columns='')
 	{
 		if (!is_array($columns) ||
 			empty($columns)) {
@@ -274,16 +299,10 @@ class WildcardPluginInstaller010202 implements WildcardPluginInstallerInterface0
 		}
 
 		foreach ($columns as $table => $allColumns) {
-			$sep = $addedColumns = '';
 			foreach ($allColumns as $title => $definition) {
 				if (!$this->fieldExists($table, $title)) {
-					$addedColumns .= "{$sep}{$title} {$definition}";
-					$sep = ', ADD ';
+					$this->db->add_column($table, $title, $definition);
 				}
-			}
-			if (strlen($addedColumns) > 0) {
-				// trickery, again
-				$this->db->add_column($table, $addedColumns, '');
 			}
 		}
 	}
@@ -302,16 +321,10 @@ class WildcardPluginInstaller010202 implements WildcardPluginInstallerInterface0
 		}
 
 		foreach ($this->columns as $table => $columns) {
-			$sep = $droppedColumns = '';
 			foreach ($columns as $title => $definition) {
 				if ($this->fieldExists($table, $title)) {
-					$droppedColumns .= "{$sep}{$title}";
-					$sep = ', DROP ';
+					$this->db->drop_column($table, $title);
 				}
-			}
-			if (strlen($droppedColumns) > 0) {
-				// tricky, tricky xD
-				$result = $this->db->drop_column($table, $droppedColumns);
 			}
 		}
 	}
@@ -551,7 +564,7 @@ class WildcardPluginInstaller010202 implements WildcardPluginInstallerInterface0
 			// now cache the actual files
 			require_once MYBB_ROOT . "{$config['admin_dir']}/inc/functions_themes.php";
 
-			if(!cache_stylesheet(1, $data['cachefile'], $data['stylesheet']))
+			if(!cache_stylesheet(1, $styleSheet['cachefile'], $data['stylesheet']))
 			{
 				$this->db->update_query("themestylesheets", array('cachefile' => "css.php?stylesheet={$sid}"), "sid='{$sid}'", 1);
 			}
@@ -663,7 +676,7 @@ class WildcardPluginInstaller010202 implements WildcardPluginInstallerInterface0
 				   !mkdir("{$path}/images", 0777, true)) ||
 				   ($mainFolder &&
 				    !is_dir("{$path}/images{$mainFolder}") &&
-				    !mkdir("{$path}/images{$mainFolder}", 0777, true))) {
+				    !$this->createContentFolder("{$path}/images{$mainFolder}"))) {
 					continue;
 				}
 
@@ -693,7 +706,7 @@ class WildcardPluginInstaller010202 implements WildcardPluginInstallerInterface0
 				if (!is_dir($path) ||
 				   ($mainFolder &&
 				    !is_dir("{$path}{$mainFolder}") &&
-				    !mkdir("{$path}{$mainFolder}", 0777, true))) {
+				    !$this->createContentFolder("{$path}{$mainFolder}"))) {
 					continue;
 				}
 
@@ -770,14 +783,23 @@ class WildcardPluginInstaller010202 implements WildcardPluginInstallerInterface0
 	{
 		global $config;
 
-		$query = $this->db->write_query("
-			SHOW TABLES
-			FROM `{$config['database']['database']}`
-		");
+		// PostgreSQL requires a little more work to grab the table names
+		if ($this->db->engine == 'pgsql') {
+			$tableArray = $this->db->list_tables($config['database']['database'], $this->db->table_prefix);
 
-		$tableList = array();
-		while ($row = $this->db->fetch_array($query)) {
-			$tableList[array_pop($row)] = 1;
+			foreach ($tableArray as $table) {
+				$tableList[$table] = 1;
+			}
+		} else {
+			$query = $this->db->write_query("
+				SHOW TABLES
+				FROM `{$config['database']['database']}`
+			");
+
+			$tableList = array();
+			while ($row = $this->db->fetch_array($query)) {
+				$tableList[array_pop($row)] = 1;
+			}
 		}
 		return $tableList;
 	}
@@ -822,7 +844,7 @@ class WildcardPluginInstaller010202 implements WildcardPluginInstallerInterface0
 	 * @param  bool acp or forum
 	 * @return array keys of folder names
 	 */
-	private function buildThemeList($acp = false)
+	private function buildThemeList($acp=false)
 	{
 		static $cache;
 		$folderList = array();
@@ -835,7 +857,8 @@ class WildcardPluginInstaller010202 implements WildcardPluginInstallerInterface0
 			foreach (new DirectoryIterator(MYBB_ADMIN_DIR . 'styles') as $di) {
 				$folder = $di->getFilename();
 
-				if ($di->isDot() ||
+				if ($folder == 'default' ||
+					$di->isDot() ||
 					!$di->isDir() ||
 					@!file_exists(MYBB_ADMIN_DIR . "styles/{$folder}/main.css")) {
 					continue;
@@ -850,7 +873,7 @@ class WildcardPluginInstaller010202 implements WildcardPluginInstallerInterface0
 				return $cache['forum'];
 			}
 
-			$duplicates = array();
+			$duplicates = array('images' => 1);
 			$query = $this->db->simple_select('themes', 'pid, properties');
 			while ($theme = $this->db->fetch_array($query)) {
 				$properties = unserialize($theme['properties']);
@@ -866,6 +889,52 @@ class WildcardPluginInstaller010202 implements WildcardPluginInstallerInterface0
 		}
 
 		return $folderList;
+	}
+
+	/**
+	 * verify that path exists or can be created
+	 *
+	 * @param  folder path
+	 * @return bool
+	 */
+	private function createContentFolder($path)
+	{
+		if (mkdir($path, 0777, true)) {
+			file_put_contents($path . '/index.html', <<<EOF
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+	<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta name="robots" content="noindex, nofollow" />
+		<title>forbidden</title>
+		<style type="text/css">	
+		body {
+			background:		#F0F0F0;
+			color:			#010101;
+			font-family:	verdana,arial;
+			font-size:		14px;
+			font-weight:	bold;
+		}
+		#msg {
+			border:			1px solid #F08080;
+			background:		#FFF0F0;
+			padding:		20px;
+			margin:			5px;
+		}
+		</style>
+	</head>
+	<body>
+	<div id="msg">you don't have permission to access this resource</div>
+	</body>
+</html>
+EOF
+);
+
+			return true;
+		}
+
+		return false;
 	}
 }
 

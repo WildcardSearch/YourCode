@@ -4,7 +4,7 @@
  * plugin specific extension
  */
 
-class YourCodeInstaller extends WildcardPluginInstaller010202
+class YourCodeInstaller extends WildcardPluginInstaller020000
 {
 	static public function getInstance()
 	{
