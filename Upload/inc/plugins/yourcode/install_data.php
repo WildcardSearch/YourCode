@@ -12,6 +12,28 @@
  */
 
 $tables = array(
+	'pgsql' => array(	
+		'yourcode' => array(
+			'id' => 'SERIAL',
+			'title' => 'VARCHAR(100)',
+			'description' => 'TEXT',
+			'parse_order' => 'INT NOT NULL',
+			'nestable' => 'INT',
+			'active' => 'INT',
+			'case_sensitive' => 'INT',
+			'single_line' => 'INT',
+			'multi_line' => 'INT',
+			'eval' => 'INT',
+			'callback' => 'INT',
+			'regex' => 'TEXT',
+			'replacement' => 'TEXT',
+			'alt_replacement' => 'TEXT',
+			'can_use' => 'TEXT',
+			'can_view' => 'TEXT',
+			'default_id' => 'INT',
+			'dateline' => 'INT NOT NULL, PRIMARY KEY(id)',
+		),
+	),
 	"yourcode" => array(
 		"id" => 'INT(10) NOT NULL AUTO_INCREMENT PRIMARY KEY',
 		"title" => 'VARCHAR(100)',

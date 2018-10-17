@@ -75,12 +75,13 @@ function yourcode_run($message)
 	if (is_array($yourcode['active']['restricted_view']['callback']) &&
 		!empty($yourcode['active']['restricted_view']['callback'])) {
 		foreach ($yourcode['active']['restricted_view']['callback'] as $code) {
-			if ($code['can_view']) {
-				if (!yourcode_check_user_permissions($code['can_view'])) {
-					$code['replacement'] = $code['alt_replacement'];
-				}
+			if ($code['can_view'] &&
+				!yourcode_check_user_permissions($code['can_view'])) {
+				$yourcode['active']['simple']['nestable'][] = array('find' => $code['find'], 'replacement' => $code['alt_replacement']);
+				$yourcode['active']['simple']['nestable_count']++;
+			} else {
+				$yourcode['active']['simple']['callback'][] = array('find' => $code['find'], 'replacement' => $code['replacement']);
 			}
-			$yourcode['active']['simple']['callback'][] = array('find' => $code['find'], 'replacement' => $code['replacement']);
 		}
 	}
 	$yourcode['active']['simple']['callback_count'] = count($yourcode['active']['simple']['callback']);
