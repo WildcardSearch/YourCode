@@ -165,6 +165,12 @@ function yourcode_activate()
 			));
 		}
 
+		if (version_compare($oldVersion, '2.1.2', '<')) {
+			$removedFiles = array_merge($removedFiles, array(
+				'inc/plugins/yourcode/classes/WildcardPluginInstaller010202.php',
+			));
+		}
+
 		foreach ($removedFiles as $file) {
 			@unlink(MYBB_ROOT . "inc/plugins/yourcode/classes/{$file}");
 		}
