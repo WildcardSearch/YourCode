@@ -1,4 +1,4 @@
-## YourCode 2.1.1
+## YourCode 2.1.3
 for MyBB 1.8.x
 
 *Forget MyCode. Take control of YourCode-- a much better way of handling BB Code for MyBB forums*
