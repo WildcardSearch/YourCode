@@ -18,7 +18,7 @@
  * for db functions and a PortableObject for import/export with properties
  * for YourCodes
  */
-class YourCode extends PortableObject010000
+class YourCode extends PortableObject010101
 {
 	/**
 	 * @var string
